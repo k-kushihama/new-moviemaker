@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ULTRA-FAST VIDEO ENGINE | SnapLynk Co.,Ltd.</title>
-    <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
+    <title>ULTRA-FAST ENGINE v3.0 | SnapLynk Co.,Ltd.</title>
+    <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.10.1/dist/ffmpeg.min.js"></script>
+
     <style>
         :root {
-            --bg: #050505;
-            --surface: #121212;
+            --bg: #000000;
+            --surface: #121214;
             --primary: #007AFF;
             --accent: #00F2FF;
             --text: #F5F5F7;
@@ -18,284 +19,276 @@
         body {
             background-color: var(--bg);
             color: var(--text);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
             margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            overflow: hidden;
+            padding: 20px;
         }
 
-        .app-container {
-            width: 90%;
-            max-width: 1000px;
+        .master-container {
+            width: 100%;
+            max-width: 850px;
             background: var(--surface);
-            border-radius: 24px;
-            padding: 40px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 40px;
+            border-radius: 32px;
+            padding: 60px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.7);
         }
 
         h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
+            font-size: 48px;
+            font-weight: 800;
+            text-align: center;
+            margin: 0 0 50px 0;
             letter-spacing: -0.05em;
-            margin: 0;
-            background: linear-gradient(135deg, #fff 0%, var(--text-dim) 100%);
+            background: linear-gradient(180deg, #FFFFFF 0%, #86868b 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        .grid-layout {
+        .upload-section {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 30px;
+            gap: 24px;
+            margin-bottom: 40px;
         }
 
-        .drop-zone {
-            border: 2px dashed rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 30px;
+        .drop-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 40px 20px;
             text-align: center;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            background: rgba(255, 255, 255, 0.02);
             cursor: pointer;
+            transition: 0.4s cubic-bezier(0.2, 0, 0, 1);
         }
 
-        .drop-zone:hover {
-            border-color: var(--primary);
+        .drop-card:hover {
             background: rgba(0, 122, 255, 0.05);
-        }
-
-        .controls {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        label {
-            font-size: 0.8rem;
-            color: var(--text-dim);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-        }
-
-        input[type="text"], input[type="number"] {
-            background: #1c1c1e;
-            border: 1px solid #2c2c2e;
-            border-radius: 8px;
-            padding: 12px;
-            color: white;
-            outline: none;
-            transition: border 0.2s;
-        }
-
-        input:focus {
             border-color: var(--primary);
-        }
-
-        .btn-process {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 18px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: transform 0.2s, filter 0.2s;
-            margin-top: 10px;
-        }
-
-        .btn-process:hover {
-            filter: brightness(1.2);
             transform: translateY(-2px);
         }
 
-        .btn-process:disabled {
-            background: #2c2c2e;
-            cursor: not-allowed;
-            transform: none;
+        .drop-card strong { display: block; font-size: 14px; margin-bottom: 8px; color: var(--text); }
+        .drop-card span { font-size: 12px; color: var(--text-dim); overflow-wrap: break-word; }
+
+        .control-panel {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            margin-bottom: 40px;
         }
 
-        #progress-container {
-            margin-top: 30px;
-            display: none;
-        }
-
-        .progress-bar {
-            height: 4px;
-            background: #2c2c2e;
-            border-radius: 2px;
-            overflow: hidden;
-        }
-
-        #progress-fill {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, var(--primary), var(--accent));
-            transition: width 0.3s;
-        }
-
-        #status-text {
-            font-size: 0.8rem;
+        .input-group label {
+            display: block;
+            font-size: 11px;
             color: var(--text-dim);
-            margin-top: 10px;
-            text-align: center;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            letter-spacing: 0.1em;
         }
 
-        #result-video {
+        input {
             width: 100%;
+            background: #1c1c1e;
+            border: 1px solid #2c2c2e;
             border-radius: 12px;
-            margin-top: 20px;
+            padding: 16px;
+            color: white;
+            font-size: 16px;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        input:focus { border-color: var(--primary); }
+
+        .btn-render {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            padding: 22px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-render:hover:not(:disabled) {
+            filter: brightness(1.2);
+            box-shadow: 0 0 30px rgba(0, 122, 255, 0.3);
+        }
+
+        .btn-render:disabled { background: #2c2c2e; color: #555; cursor: not-allowed; }
+
+        .monitor-area { margin-top: 40px; display: none; }
+        .rail { height: 4px; background: #222; border-radius: 2px; overflow: hidden; }
+        .fill { height: 100%; width: 0%; background: var(--primary); transition: width 0.3s; }
+        #status-log { font-size: 13px; color: var(--text-dim); text-align: center; margin-top: 20px; font-family: monospace; }
+
+        video {
+            width: 100%;
+            margin-top: 40px;
+            border-radius: 24px;
             display: none;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .download-link {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <header>
-        <h1>ULTRA-FAST ENGINE</h1>
-    </header>
-
-    <div class="grid-layout">
-        <div class="upload-section">
-            <div class="drop-zone" onclick="document.getElementById('video-input').click()">
-                <p id="video-label">VIDEO (a.mp4) を選択</p>
-                <input type="file" id="video-input" accept="video/mp4" hidden>
-            </div>
-            <div class="drop-zone" style="margin-top: 20px;" onclick="document.getElementById('audio-input').click()">
-                <p id="audio-label">AUDIO (a.wav) を選択</p>
-                <input type="file" id="audio-input" accept="audio/wav,audio/mpeg" hidden>
-            </div>
+<div class="master-container">
+    <h1>SnapLynk Engine v3.0</h1>
+    
+    <div class="upload-section">
+        <div class="drop-card" onclick="document.getElementById('v-file').click()">
+            <strong>📺 VIDEO FILE</strong>
+            <span id="v-name">Select mp4</span>
+            <input type="file" id="v-file" accept="video/mp4" hidden>
         </div>
-
-        <div class="controls">
-            <div class="input-group">
-                <label>Audio Volume (%)</label>
-                <input type="number" id="vol-input" value="200">
-            </div>
-            <div class="input-group">
-                <label>Watermark Text</label>
-                <input type="text" id="wm-text" placeholder="SNAPLYNK CO.,LTD.">
-            </div>
-            <button id="start-btn" class="btn-process">エクスポート開始</button>
-            
-            <div id="progress-container">
-                <div class="progress-bar"><div id="progress-fill"></div></div>
-                <p id="status-text">Ready to process</p>
-            </div>
+        <div class="drop-card" onclick="document.getElementById('a-file').click()">
+            <strong>🎵 AUDIO FILE</strong>
+            <span id="a-name">Select wav/mp3</span>
+            <input type="file" id="a-file" accept="audio/*" hidden>
         </div>
     </div>
 
-    <video id="result-video" controls></video>
+    <div class="control-panel">
+        <div class="input-group">
+            <label>Gain %</label>
+            <input type="number" id="v-vol" value="200">
+        </div>
+        <div class="input-group">
+            <label>Watermark Label</label>
+            <input type="text" id="v-wm" placeholder="SnapLynk Co.,Ltd.">
+        </div>
+    </div>
+
+    <button id="run-btn" class="btn-render">GENERATE MASTER VIDEO</button>
+
+    <div class="monitor-area" id="mon-ui">
+        <div class="rail"><div class="fill" id="p-bar"></div></div>
+        <p id="status-log">INITIALIZING...</p>
+    </div>
+
+    <video id="out-vid" controls playsinline></video>
+    <a id="dl-link" class="download-link" download="output.mp4">SAVE TO DEVICE →</a>
 </div>
 
 <script>
-    const { createFFmpeg, fetchFile } = FFmpeg;
-    const ffmpeg = createFFmpeg({ log: false });
+    // Cookie management for persistence
+    const setC = (k, v) => document.cookie = `${k}=${encodeURIComponent(v)}; max-age=31536000; path=/`;
+    const getC = (k) => document.cookie.match(new RegExp(`(?:^|; )${k.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1')}=([^;]*)`))?.[1];
 
-    const videoInput = document.getElementById('video-input');
-    const audioInput = document.getElementById('audio-input');
-    const volInput = document.getElementById('vol-input');
-    const wmInput = document.getElementById('wm-text');
-    const startBtn = document.getElementById('start-btn');
-    const progressFill = document.getElementById('progress-fill');
-    const statusText = document.getElementById('status-text');
-    const resultVideo = document.getElementById('result-video');
-
-    // Cookie management
-    const setCookie = (name, value) => {
-        document.cookie = `${name}=${encodeURIComponent(value)}; max-age=31536000; path=/`;
-    };
-
-    const getCookie = (name) => {
-        const matches = document.cookie.match(new RegExp(`(?:^|; )${name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1')}=([^;]*)`));
-        return matches ? decodeURIComponent(matches[1]) : undefined;
-    };
-
-    // Load settings from cookie
     window.onload = () => {
-        if (getCookie('vol')) volInput.value = getCookie('vol');
-        if (getCookie('wm')) wmInput.value = getCookie('wm');
+        if (getC('vol')) document.getElementById('v-vol').value = decodeURIComponent(getC('vol'));
+        if (getC('wm')) document.getElementById('v-wm').value = decodeURIComponent(getC('wm'));
     };
 
-    // UI Updates
-    videoInput.onchange = e => document.getElementById('video-label').innerText = e.target.files[0].name;
-    audioInput.onchange = e => document.getElementById('audio-label').innerText = e.target.files[0].name;
+    const { createFFmpeg, fetchFile } = FFmpeg;
+    const ffmpeg = createFFmpeg({
+        log: true,
+        corePath: 'https://unpkg.com/@ffmpeg/core@0.10.0/dist/ffmpeg-core.js'
+    });
 
-    startBtn.onclick = async () => {
-        if (!videoInput.files[0] || !audioInput.files[0]) {
-            alert('動画と音声の両方を選択してください．');
-            return;
+    const runBtn = document.getElementById('run-btn');
+    const log = document.getElementById('status-log');
+    const bar = document.getElementById('p-bar');
+    const video = document.getElementById('out-vid');
+    const dlLink = document.getElementById('dl-link');
+
+    document.getElementById('v-file').onchange = e => document.getElementById('v-name').innerText = e.target.files[0].name;
+    document.getElementById('a-file').onchange = e => document.getElementById('a-name').innerText = e.target.files[0].name;
+
+    runBtn.onclick = async () => {
+        const vf = document.getElementById('v-file').files[0];
+        const af = document.getElementById('a-file').files[0];
+
+        if (!vf || !af) return alert("Please select both video and audio files.");
+
+        setC('vol', document.getElementById('v-vol').value);
+        setC('wm', document.getElementById('v-wm').value);
+
+        runBtn.disabled = true;
+        document.getElementById('mon-ui').style.display = 'block';
+        video.style.display = 'none';
+        dlLink.style.display = 'none';
+
+        try {
+            if (!ffmpeg.isLoaded()) {
+                log.innerText = "LOADING ENGINE CORE...";
+                await ffmpeg.load();
+            }
+
+            log.innerText = "PREPARING FONTS & ASSETS...";
+            // Font loading for drawtext robustness
+            const fontData = await fetch('https://raw.githubusercontent.com/googlefonts/roboto/main/src/hinted/Roboto-Bold.ttf').then(res => res.arrayBuffer());
+            ffmpeg.FS('writeFile', 'font.ttf', new Uint8Array(fontData));
+
+            ffmpeg.FS('writeFile', 'v.mp4', await fetchFile(vf));
+            ffmpeg.FS('writeFile', 'a.wav', await fetchFile(af));
+
+            ffmpeg.setProgress(({ ratio }) => {
+                bar.style.width = `${ratio * 100}%`;
+                log.innerText = `RENDERING MASTER: ${Math.floor(ratio * 100)}%`;
+            });
+
+            const vol = document.getElementById('v-vol').value / 100;
+            const wm = document.getElementById('v-wm').value || 'SnapLynk';
+
+            // --- 堅牢なFFmpegコマンド ---
+            await ffmpeg.run(
+                '-i', 'v.mp4',
+                '-i', 'a.wav',
+                '-filter_complex', 
+                `[0:v]drawtext=fontfile=font.ttf:text='${wm}':x=W-tw-40:y=H-th-40:fontsize=36:fontcolor=white@0.8:shadowcolor=black@0.4:shadowx=2:shadowy=2[v_out]; [1:a]volume=${vol}[a_out]`,
+                '-map', '[v_out]',
+                '-map', '[a_out]',
+                '-c:v', 'libx264',
+                '-preset', 'ultrafast',
+                '-crf', '23', 
+                '-c:a', 'aac',    // ブラウザ互換性のためのAACエンコーダー
+                '-b:a', '128k',   // ビットレート明示
+                '-pix_fmt', 'yuv420p',
+                '-shortest',      // 短い方に合わせる
+                '-async', '1',    // 音声同期
+                'output_master.mp4'
+            );
+
+            log.innerText = "FINALIZING OUTPUT...";
+            const data = ffmpeg.FS('readFile', 'output_master.mp4');
+            const blob = new Blob([data.buffer], { type: 'video/mp4' });
+            
+            if (blob.size < 1000) throw new Error("Generated file is too small. Something went wrong.");
+
+            const url = URL.createObjectURL(blob);
+            video.src = url;
+            video.style.display = 'block';
+            dlLink.href = url;
+            dlLink.style.display = 'block';
+            log.innerText = "SUCCESSFULLY COMPLETED";
+
+        } catch (e) {
+            console.error(e);
+            log.innerText = `ERROR: ${e.message}`;
+            alert("レンダリングに失敗しました．入力ファイルの形式を変えて試してください．");
+        } finally {
+            runBtn.disabled = false;
         }
-
-        // Save settings to cookie
-        setCookie('vol', volInput.value);
-        setCookie('wm', wmInput.value);
-
-        startBtn.disabled = true;
-        document.getElementById('progress-container').style.display = 'block';
-        resultVideo.style.display = 'none';
-
-        if (!ffmpeg.isLoaded()) {
-            statusText.innerText = 'エンジンを起動中...';
-            await ffmpeg.load();
-        }
-
-        const videoFile = videoInput.files[0];
-        const audioFile = audioInput.files[0];
-        const volume = volInput.value / 100;
-        const text = wmInput.value || 'SnapLynk Co.,Ltd.';
-
-        ffmpeg.FS('writeFile', 'v.mp4', await fetchFile(videoFile));
-        ffmpeg.FS('writeFile', 'a.wav', await fetchFile(audioFile));
-
-        ffmpeg.setProgress(({ ratio }) => {
-            progressFill.style.width = `${ratio * 100}%`;
-            statusText.innerText = `処理中: ${Math.floor(ratio * 100)}%`;
-        });
-
-        // 超高速エンコード・フィルタ・コマンド
-        // 1. 元動画の音声を消去
-        // 2. 指定音声を音量調整
-        // 3. 動画の長さ分、自動でウォーターマークを右下に配置
-        await ffmpeg.run(
-            '-i', 'v.mp4',
-            '-i', 'a.wav',
-            '-filter_complex', 
-            `[1:a]volume=${volume}[a_boosted]; 
-             [0:v]drawtext=text='${text}':x=W-tw-20:y=H-th-20:fontsize=24:fontcolor=white@0.5[v_wm]`,
-            '-map', '[v_wm]',
-            '-map', '[a_boosted]',
-            '-c:v', 'libx264',
-            '-preset', 'ultrafast',
-            '-shortest',
-            'out.mp4'
-        );
-
-        const data = ffmpeg.FS('readFile', 'out.mp4');
-        const url = URL.createObjectURL(new Blob([data.buffer], { type: 'video/mp4' }));
-        
-        resultVideo.src = url;
-        resultVideo.style.display = 'block';
-        statusText.innerText = '完了しました．';
-        startBtn.disabled = false;
     };
 </script>
-
 </body>
 </html>
