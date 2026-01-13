@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTRA-FAST VIDEO ENGINE | SnapLynk Co.,Ltd.</title>
+    <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
+    <style>
+        :root {
+            --bg: #050505;
+            --surface: #121212;
+            --primary: #007AFF;
+            --accent: #00F2FF;
+            --text: #F5F5F7;
+            --text-dim: #86868b;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            width: 90%;
+            max-width: 1000px;
+            background: var(--surface);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.05em;
+            margin: 0;
+            background: linear-gradient(135deg, #fff 0%, var(--text-dim) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .drop-zone {
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.02);
+            cursor: pointer;
+        }
+
+        .drop-zone:hover {
+            border-color: var(--primary);
+            background: rgba(0, 122, 255, 0.05);
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        input[type="text"], input[type="number"] {
+            background: #1c1c1e;
+            border: 1px solid #2c2c2e;
+            border-radius: 8px;
+            padding: 12px;
+            color: white;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+        }
+
+        .btn-process {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s, filter 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-process:hover {
+            filter: brightness(1.2);
+            transform: translateY(-2px);
+        }
+
+        .btn-process:disabled {
+            background: #2c2c2e;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #progress-container {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: #2c2c2e;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        #progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transition: width 0.3s;
+        }
+
+        #status-text {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        #result-video {
+            width: 100%;
+            border-radius: 12px;
+            margin-top: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header>
+        <h1>ULTRA-FAST ENGINE</h1>
+    </header>
+
+    <div class="grid-layout">
+        <div class="upload-section">
+            <div class="drop-zone" onclick="document.getElementById('video-input').click()">
+                <p id="video-label">VIDEO (a.mp4) を選択</p>
+                <input type="file" id="video-input" accept="video/mp4" hidden>
+            </div>
+            <div class="drop-zone" style="margin-top: 20px;" onclick="document.getElementById('audio-input').click()">
+                <p id="audio-label">AUDIO (a.wav) を選択</p>
+                <input type="file" id="audio-input" accept="audio/wav,audio/mpeg" hidden>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>Audio Volume (%)</label>
+                <input type="number" id="vol-input" value="200">
+            </div>
+            <div class="input-group">
+                <label>Watermark Text</label>
+                <input type="text" id="wm-text" placeholder="SNAPLYNK CO.,LTD.">
+            </div>
+            <button id="start-btn" class="btn-process">エクスポート開始</button>
+            
+            <div id="progress-container">
+                <div class="progress-bar"><div id="progress-fill"></div></div>
+                <p id="status-text">Ready to process</p>
+            </div>
+        </div>
+    </div>
+
+    <video id="result-video" controls></video>
+</div>
+
+<script>
+    const { createFFmpeg, fetchFile } = FFmpeg;
+    const ffmpeg = createFFmpeg({ log: false });
+
+    const videoInput = document.getElementById('video-input');
+    const audioInput = document.getElementById('audio-input');
+    const volInput = document.getElementById('vol-input');
+    const wmInput = document.getElementById('wm-text');
+    const startBtn = document.getElementById('start-btn');
+    const progressFill = document.getElementById('progress-fill');
+    const statusText = document.getElementById('status-text');
+    const resultVideo = document.getElementById('result-video');
+
+    // Cookie management
+    const setCookie = (name, value) => {
+        document.cookie = `${name}=${encodeURIComponent(value)}; max-age=31536000; path=/`;
+    };
+
+    const getCookie = (name) => {
+        const matches = document.cookie.match(new RegExp(`(?:^|; )${name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1')}=([^;]*)`));
+        return matches ? decodeURIComponent(matches[1]) : undefined;
+    };
+
+    // Load settings from cookie
+    window.onload = () => {
+        if (getCookie('vol')) volInput.value = getCookie('vol');
+        if (getCookie('wm')) wmInput.value = getCookie('wm');
+    };
+
+    // UI Updates
+    videoInput.onchange = e => document.getElementById('video-label').innerText = e.target.files[0].name;
+    audioInput.onchange = e => document.getElementById('audio-label').innerText = e.target.files[0].name;
+
+    startBtn.onclick = async () => {
+        if (!videoInput.files[0] || !audioInput.files[0]) {
+            alert('動画と音声の両方を選択してください．');
+            return;
+        }
+
+        // Save settings to cookie
+        setCookie('vol', volInput.value);
+        setCookie('wm', wmInput.value);
+
+        startBtn.disabled = true;
+        document.getElementById('progress-container').style.display = 'block';
+        resultVideo.style.display = 'none';
+
+        if (!ffmpeg.isLoaded()) {
+            statusText.innerText = 'エンジンを起動中...';
+            await ffmpeg.load();
+        }
+
+        const videoFile = videoInput.files[0];
+        const audioFile = audioInput.files[0];
+        const volume = volInput.value / 100;
+        const text = wmInput.value || 'SnapLynk Co.,Ltd.';
+
+        ffmpeg.FS('writeFile', 'v.mp4', await fetchFile(videoFile));
+        ffmpeg.FS('writeFile', 'a.wav', await fetchFile(audioFile));
+
+        ffmpeg.setProgress(({ ratio }) => {
+            progressFill.style.width = `${ratio * 100}%`;
+            statusText.innerText = `処理中: ${Math.floor(ratio * 100)}%`;
+        });
+
+        // 超高速エンコード・フィルタ・コマンド
+        // 1. 元動画の音声を消去
+        // 2. 指定音声を音量調整
+        // 3. 動画の長さ分、自動でウォーターマークを右下に配置
+        await ffmpeg.run(
+            '-i', 'v.mp4',
+            '-i', 'a.wav',
+            '-filter_complex', 
+            `[1:a]volume=${volume}[a_boosted]; 
+             [0:v]drawtext=text='${text}':x=W-tw-20:y=H-th-20:fontsize=24:fontcolor=white@0.5[v_wm]`,
+            '-map', '[v_wm]',
+            '-map', '[a_boosted]',
+            '-c:v', 'libx264',
+            '-preset', 'ultrafast',
+            '-shortest',
+            'out.mp4'
+        );
+
+        const data = ffmpeg.FS('readFile', 'out.mp4');
+        const url = URL.createObjectURL(new Blob([data.buffer], { type: 'video/mp4' }));
+        
+        resultVideo.src = url;
+        resultVideo.style.display = 'block';
+        statusText.innerText = '完了しました．';
+        startBtn.disabled = false;
+    };
+</script>
+
+</body>
+</html>
