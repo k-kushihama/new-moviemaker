@@ -1,5 +1,5 @@
 /**
- * SnapTrack Sovereign Engine v17.0
+ * SnapTrack Sovereign Engine v18.0
  * Ubuntu 22.04 / Proxmox 8-Core / RAM-Disk Accelerated
  * Port: 6011
  */
@@ -13,7 +13,6 @@ const fs = require('fs');
 const app = express();
 const port = 6011;
 
-// RAMディスク設定
 const RAM_PATH = '/dev/shm/snaptrack';
 const UPLOAD_DIR = path.join(RAM_PATH, 'uploads');
 const PUBLIC_DIR = path.join(RAM_PATH, 'public');
@@ -30,7 +29,6 @@ const upload = multer({ dest: UPLOAD_DIR });
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/stream', express.static(PUBLIC_DIR));
 
-// Cloudflare Tunnel用ヘッダー
 app.use((req, res, next) => {
     res.header('Cross-Origin-Embedder-Policy', 'require-corp');
     res.header('Cross-Origin-Opener-Policy', 'same-origin');
@@ -43,11 +41,9 @@ app.post('/process', upload.fields([{ name: 'video' }, { name: 'audio' }]), (req
     const videoFile = req.files['video'][0];
     const audioFile = req.files['audio'][0];
     const wmText = req.body.wm || 'SnapTrack';
-    
-    // GUIからのパラメータ取得
-    const posX = parseFloat(req.body.x) || 50; // Default center
-    const posY = parseFloat(req.body.y) || 90; // Default bottom
-    const fontSize = parseInt(req.body.fontsize) || 32; // 新追加: フォントサイズ
+    const posX = parseFloat(req.body.x) || 50;
+    const posY = parseFloat(req.body.y) || 90;
+    const fontSize = parseInt(req.body.fontsize) || 32;
 
     const jobId = Date.now().toString();
     const outputName = `final_${jobId}.mp4`;
@@ -59,25 +55,17 @@ app.post('/process', upload.fields([{ name: 'video' }, { name: 'audio' }]), (req
 
         jobs[jobId] = { progress: 0, eta: 0, status: 'processing' };
 
-        // 座標計算 (中心基準から左上基準へ変換)
-        // fontsizeも動的に適用
         const targetX = `(w*${posX/100} - tw/2)`;
         const targetY = `(h*${posY/100} - th/2)`;
 
         const ffmpeg = spawn('ffmpeg', [
-            '-nostdin', '-y',
-            '-threads', '8', // Proxmox 8コア フル活用
+            '-nostdin', '-y', '-threads', '8',
             '-i', videoFile.path,
             '-i', audioFile.path,
-            // fontsizeに動的な値を適用
             '-filter_complex', `[0:v]scale=-2:720:flags=fast_bilinear,drawtext=text='${wmText}':x=${targetX}:y=${targetY}:fontsize=${fontSize}:fontcolor=white:shadowcolor=black@0.5:shadowx=2:shadowy=2[v];[1:a]volume=2.0,aresample=44100[a]`,
             '-map', '[v]', '-map', '[a]',
-            '-c:v', 'libx264',
-            '-preset', 'superfast', // 高速プリセット
-            '-tune', 'fastdecode',  // デコード調整
-            '-crf', '28',
-            '-movflags', '+faststart', // 即時再生
-            '-pix_fmt', 'yuv420p',
+            '-c:v', 'libx264', '-preset', 'superfast', '-tune', 'fastdecode',
+            '-crf', '28', '-movflags', '+faststart', '-pix_fmt', 'yuv420p',
             '-c:a', 'aac', '-b:a', '96k', '-shortest',
             outputPath
         ]);
@@ -102,15 +90,13 @@ app.post('/process', upload.fields([{ name: 'video' }, { name: 'audio' }]), (req
             } else {
                 jobs[jobId].status = 'error';
             }
-            // クリーンアップ
             if (fs.existsSync(videoFile.path)) fs.unlinkSync(videoFile.path);
             if (fs.existsSync(audioFile.path)) fs.unlinkSync(audioFile.path);
         });
 
         res.json({ jobId });
     } catch (e) {
-        console.error(e);
-        res.status(500).send('Error during initialization');
+        res.status(500).send('Error');
     }
 });
 
@@ -121,4 +107,4 @@ function timeToSeconds(timeStr) {
     return h * 3600 + m * 60 + s;
 }
 
-app.listen(port, '0.0.0.0', () => console.log(`SnapTrack v17 (iOS Style): Port ${port}`));
+app.listen(port, '0.0.0.0', () => console.log(`SnapTrack Sovereign Engine v18.0 Online`));
