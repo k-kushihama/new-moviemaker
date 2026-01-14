@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SnapTrack v17.0 | iOS Style</title>
+    <style>
+        :root {
+            --ios-bg: #000000;
+            --ios-card: rgba(28, 28, 30, 0.85); /* 半透明のダークモードカラー */
+            --ios-primary: #0A84FF; /* iOS Blue */
+            --ios-text: #FFFFFF;
+            --ios-subtext: #8E8E93;
+            --ios-border: rgba(255, 255, 255, 0.15);
+        }
+
+        body {
+            background-color: var(--ios-bg);
+            color: var(--ios-text);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            /* iOS風の背景グラデーション（任意） */
+            background: radial-gradient(circle at top left, #1a1a1a, #000);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* iOS風のグラスモーフィズムカード */
+        .app-container {
+            width: 100%;
+            max-width: 500px;
+            background: var(--ios-card);
+            backdrop-filter: blur(20px); /* すりガラス効果 */
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 36px;
+            padding: 32px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            border: 1px solid var(--ios-border);
+            text-align: center;
+        }
+
+        h1 {
+            font-weight: 700;
+            font-size: 32px;
+            margin-bottom: 8px;
+            letter-spacing: 0.02em;
+        }
+
+        p.subtitle {
+            color: var(--ios-subtext);
+            font-size: 13px;
+            margin-bottom: 32px;
+            letter-spacing: 0.05em;
+        }
+
+        /* プレビューエリア */
+        .preview-stage {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #111;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--ios-border);
+            margin-bottom: 24px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        /* ドラッグ可能なウォーターマーク */
+        #draggable-wm {
+            position: absolute;
+            top: 80%; left: 50%; /* 初期位置 */
+            transform: translate(-50%, -50%); /* 中心基準で配置 */
+            padding: 4px 8px;
+            color: white;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+            cursor: grab;
+            white-space: nowrap;
+            user-select: none;
+            border: 1px dashed rgba(255,255,255,0.3); /* 操作時のみ表示させることも可能 */
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 32px; /* 初期サイズ */
+        }
+        #draggable-wm:active { cursor: grabbing; border-color: var(--ios-primary); }
+
+        /* iOS風リストアイテム（ファイル選択） */
+        .ios-list-item {
+            background: rgba(255,255,255,0.05);
+            padding: 16px;
+            border-radius: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .ios-list-item:hover { background: rgba(255,255,255,0.1); }
+        .ios-list-item strong { font-size: 16px; }
+        .ios-list-item span.status { font-size: 13px; color: var(--ios-subtext); }
+
+        /* 入力フィールド */
+        .ios-input {
+            width: 100%;
+            background: rgba(255,255,255,0.05);
+            border: none;
+            border-radius: 16px;
+            padding: 16px;
+            color: var(--ios-text);
+            font-size: 17px;
+            margin-bottom: 24px;
+            outline: none;
+            box-sizing: border-box;
+        }
+        .ios-input:focus { background: rgba(255,255,255,0.1); }
+
+        /* コントロールラベル */
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: var(--ios-subtext);
+            margin-bottom: 8px;
+            padding: 0 8px;
+        }
+
+        /* iOS風スライダー */
+        input[type=range] {
+            width: 100%;
+            margin-bottom: 32px;
+            accent-color: var(--ios-primary); /* モダンブラウザ用 */
+        }
+
+        /* iOS風ボタン */
+        .ios-btn {
+            background: var(--ios-primary);
+            color: white;
+            border: none;
+            padding: 18px;
+            width: 100%;
+            border-radius: 18px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.1s, filter 0.2s;
+        }
+        .ios-btn:active { transform: scale(0.98); filter: brightness(0.9); }
+        .ios-btn:disabled { background: #333; color: #888; cursor: default; transform: none; }
+
+        /* 進捗バー */
+        .progress-container { margin-top: 24px; display: none; }
+        .progress-track { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background: var(--ios-primary); transition: width 0.3s ease-out; }
+        .progress-info { display: flex; justify-content: space-between; font-size: 12px; color: var(--ios-subtext); margin-top: 8px; }
+
+        video { width: 100%; border-radius: 20px; margin-top: 24px; display: none; border: 1px solid var(--ios-border); }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <h1>SnapTrack</h1>
+    <p class="subtitle">Sovereign Engine v17.0</p>
+
+    <div class="preview-stage" id="preview-box">
+        <div id="draggable-wm">SnapTrack</div>
+    </div>
+
+    <div class="control-label">
+        <span>Watermark Size</span>
+        <span id="size-val">32px</span>
+    </div>
+    <input type="range" id="size-slider" min="16" max="120" value="32">
+
+    <input type="text" id="wm-text" class="ios-input" placeholder="Watermark Text" value="SnapTrack">
+
+    <div class="ios-list-item" onclick="document.getElementById('v').click()">
+        <strong>Video</strong> <span class="status" id="v-name">Select .mp4</span>
+        <input type="file" id="v" accept="video/mp4" hidden>
+    </div>
+    <div class="ios-list-item" onclick="document.getElementById('a').click()">
+        <strong>Audio</strong> <span class="status" id="a-name">Select .wav</span>
+        <input type="file" id="a" accept="audio/*" hidden>
+    </div>
+
+    <button id="go-btn" class="ios-btn">Render</button>
+
+    <div class="progress-container" id="prog-box">
+        <div class="progress-track"><div class="progress-bar" id="prog-bar"></div></div>
+        <div class="progress-info">
+            <span>Processing...</span>
+            <span id="eta">ETA: --s</span>
+        </div>
+    </div>
+
+    <video id="out-video" controls playsinline></video>
+</div>
+
+<script>
+    const wm = document.getElementById('draggable-wm');
+    const preview = document.getElementById('preview-box');
+    const wmText = document.getElementById('wm-text');
+    const sizeSlider = document.getElementById('size-slider');
+    const sizeVal = document.getElementById('size-val');
+    
+    // 初期位置 (中心基準の%)
+    let posX = 50, posY = 80;
+
+    // テキスト内容のリアルタイム反映
+    wmText.oninput = () => wm.innerText = wmText.value || 'Watermark';
+
+    // サイズスライダーのリアルタイム反映
+    sizeSlider.oninput = () => {
+        const size = sizeSlider.value;
+        wm.style.fontSize = size + 'px';
+        sizeVal.innerText = size + 'px';
+    };
+
+    // ドラッグ操作 (PC/Mobile両対応)
+    const startDrag = (e) => {
+        e.preventDefault();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        const rect = preview.getBoundingClientRect();
+
+        const move = (ev) => {
+            const cx = ev.touches ? ev.touches[0].clientX : ev.clientX;
+            const cy = ev.touches ? ev.touches[0].clientY : ev.clientY;
+            
+            // プレビューエリアに対する相対位置(%)を計算
+            posX = Math.max(0, Math.min(100, ((cx - rect.left) / rect.width) * 100));
+            posY = Math.max(0, Math.min(100, ((cy - rect.top) / rect.height) * 100));
+            
+            wm.style.left = posX + '%';
+            wm.style.top = posY + '%';
+        };
+        
+        const stop = () => {
+            document.removeEventListener('mousemove', move);
+            document.removeEventListener('mouseup', stop);
+            document.removeEventListener('touchmove', move);
+            document.removeEventListener('touchend', stop);
+        };
+
+        document.addEventListener('mousemove', move);
+        document.addEventListener('mouseup', stop);
+        document.addEventListener('touchmove', move, { passive: false });
+        document.addEventListener('touchend', stop);
+    };
+    wm.addEventListener('mousedown', startDrag);
+    wm.addEventListener('touchstart', startDrag, { passive: false });
+
+    // ファイル選択表示
+    document.getElementById('v').onchange = e => document.getElementById('v-name').innerText = e.target.files[0]?.name || 'Select .mp4';
+    document.getElementById('a').onchange = e => document.getElementById('a-name').innerText = e.target.files[0]?.name || 'Select .wav';
+
+    // レンダリング実行
+    document.getElementById('go-btn').onclick = async () => {
+        const vf = document.getElementById('v').files[0];
+        const af = document.getElementById('a').files[0];
+        if(!vf || !af) return alert("Please select both Video and Audio files.");
+
+        const btn = document.getElementById('go-btn');
+        const progBox = document.getElementById('prog-box');
+        const progBar = document.getElementById('prog-bar');
+        const etaDisp = document.getElementById('eta');
+        const video = document.getElementById('out-video');
+
+        btn.disabled = true;
+        progBox.style.display = 'block';
+        video.style.display = 'none';
+
+        const fd = new FormData();
+        fd.append('video', vf);
+        fd.append('audio', af);
+        fd.append('wm', wmText.value);
+        fd.append('x', posX);
+        fd.append('y', posY);
+        fd.append('fontsize', sizeSlider.value); // フォントサイズを送信
+
+        try {
+            const res = await fetch('/process', { method: 'POST', body: fd });
+            if (!res.ok) throw new Error('Server Error');
+            const { jobId } = await res.json();
+
+            const timer = setInterval(async () => {
+                const pRes = await fetch(`/progress/${jobId}`);
+                const status = await pRes.json();
+
+                progBar.style.width = status.progress + '%';
+                etaDisp.innerText = `ETA: ${status.eta}s`;
+
+                if (status.status === 'completed') {
+                    clearInterval(timer);
+                    etaDisp.innerText = 'Completed';
+                    video.src = status.url + '?t=' + Date.now();
+                    video.style.display = 'block';
+                    btn.disabled = false;
+                } else if (status.status === 'error') {
+                    clearInterval(timer);
+                    etaDisp.innerText = 'Error';
+                    btn.disabled = false;
+                    alert('Rendering Failed. Check server logs.');
+                }
+            }, 1000);
+        } catch (e) {
+            alert('Upload Failed: ' + e.message);
+            btn.disabled = false;
+            progBox.style.display = 'none';
+        }
+    };
+</script>
+</body>
+</html>
