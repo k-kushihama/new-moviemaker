@@ -3,303 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SnapTrack v18.0 | Premium Edition</title>
+    <title>SnapTrack v21.0</title>
     <style>
-        :root {
-            --apple-bg: #000000;
-            --apple-card: rgba(30, 30, 32, 0.7);
-            --apple-blue: #007AFF;
-            --apple-text: #FFFFFF;
-            --apple-gray: #8E8E93;
-            --glass-border: rgba(255, 255, 255, 0.12);
-        }
-
-        body {
-            background-color: var(--apple-bg);
-            color: var(--apple-text);
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background: radial-gradient(at 0% 0%, #1c1c1e 0%, #000 100%);
-            padding: 20px;
-            box-sizing: border-box;
-            overflow-x: hidden;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 520px;
-            background: var(--apple-card);
-            backdrop-filter: blur(30px) saturate(180%);
-            -webkit-backdrop-filter: blur(30px) saturate(180%);
-            border-radius: 42px;
-            padding: 40px;
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
-            animation: fadeIn 0.8s ease-out;
-        }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        h1 { font-size: 34px; font-weight: 700; margin: 0; letter-spacing: -0.02em; }
-        .sub { color: var(--apple-gray); font-size: 14px; margin-top: 4px; margin-bottom: 30px; letter-spacing: 0.05em; text-transform: uppercase; }
-
-        /* プレビューエリア（GUI） */
-        .preview-stage {
-            width: 100%;
-            aspect-ratio: 16 / 9;
-            background: #000;
-            border-radius: 24px;
-            position: relative;
-            overflow: hidden;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            border: 1px solid var(--glass-border);
-        }
-
-        #draggable-wm {
-            position: absolute;
-            transform: translate(-50%, -50%);
-            color: #fff;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.9);
-            cursor: grab;
-            white-space: nowrap;
-            user-select: none;
-            font-weight: 600;
-            padding: 8px;
-            border: 1px dashed rgba(255,255,255,0);
-            transition: border 0.2s, background 0.2s;
-            border-radius: 12px;
-        }
-        #draggable-wm:hover { border: 1px dashed rgba(255,255,255,0.4); background: rgba(255,255,255,0.1); }
-        #draggable-wm:active { cursor: grabbing; border: 1px solid var(--apple-blue); background: rgba(0,122,255,0.2); }
-
-        /* コントロール群 */
-        .control-section { text-align: left; margin-bottom: 24px; }
-        .label-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--apple-gray); margin-bottom: 10px; padding: 0 4px; }
-        
-        .ios-input {
-            width: 100%;
-            background: rgba(255,255,255,0.06);
-            border: none;
-            border-radius: 14px;
-            padding: 16px;
-            color: #fff;
-            font-size: 16px;
-            outline: none;
-            box-sizing: border-box;
-            transition: background 0.2s;
-        }
-        .ios-input:focus { background: rgba(255,255,255,0.12); }
-
-        input[type=range] { width: 100%; height: 6px; border-radius: 3px; accent-color: var(--apple-blue); cursor: pointer; }
-
-        .file-item {
-            background: rgba(255,255,255,0.04);
-            padding: 18px;
-            border-radius: 18px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .file-item:hover { background: rgba(255,255,255,0.08); }
-        .file-item span.name { font-size: 13px; color: var(--apple-gray); max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-        .render-btn {
-            background: var(--apple-blue);
-            color: #fff;
-            border: none;
-            padding: 20px;
-            width: 100%;
-            border-radius: 20px;
-            font-size: 19px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .render-btn:hover:not(:disabled) { transform: scale(1.02); filter: brightness(1.1); box-shadow: 0 10px 30px rgba(0, 122, 255, 0.4); }
-        .render-btn:active { transform: scale(0.98); }
-        .render-btn:disabled { background: #333; color: #666; cursor: wait; }
-
-        /* プログレスUI */
-        .prog-container { margin-top: 30px; display: none; }
-        .track { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
-        .bar { height: 100%; width: 0%; background: var(--apple-blue); transition: width 0.4s ease-out; }
-        .prog-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--apple-gray); margin-top: 10px; }
-
-        video { width: 100%; border-radius: 24px; margin-top: 30px; display: none; border: 1px solid var(--glass-border); }
+        :root { --ios-blue: #007AFF; --ios-bg: #000; --ios-card: rgba(25, 25, 27, 0.8); --text: #fff; --gray: #8E8E93; }
+        body { background: var(--ios-bg); color: var(--text); font-family: -apple-system, sans-serif; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
+        .ambient { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 20% 30%, #1a1a1c 0%, #000 100%); z-index: -1; }
+        .glass { background: var(--ios-card); backdrop-filter: blur(50px) saturate(200%); -webkit-backdrop-filter: blur(50px) saturate(200%); border-radius: 40px; padding: 40px; width: 100%; max-width: 460px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 40px 100px rgba(0,0,0,0.7); }
+        h1 { font-size: 32px; font-weight: 800; margin: 0 0 24px 0; letter-spacing: -1px; text-align: center; }
+        .preview { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 20px; overflow: hidden; margin-bottom: 24px; border: 1px solid rgba(255,255,255,0.05); }
+        #wm { position: absolute; transform: translate(-50%, -50%); cursor: grab; color: #fff; white-space: nowrap; user-select: none; font-weight: 600; text-shadow: 0 2px 8px rgba(0,0,0,0.8); }
+        .input-item { background: rgba(255,255,255,0.06); padding: 16px; border-radius: 18px; margin-bottom: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
+        .input-item:active { transform: scale(0.98); background: rgba(255,255,255,0.1); }
+        .input-item span { font-size: 14px; color: var(--gray); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .text-input { width: 100%; background: rgba(255,255,255,0.06); border: none; padding: 18px; border-radius: 18px; color: #fff; font-size: 16px; margin-bottom: 20px; outline: none; }
+        input[type="range"] { width: 100%; accent-color: var(--ios-blue); margin-bottom: 24px; }
+        .btn { background: var(--ios-blue); color: #fff; border: none; padding: 20px; width: 100%; border-radius: 20px; font-size: 18px; font-weight: 700; cursor: pointer; box-shadow: 0 10px 30px rgba(0, 122, 255, 0.3); transition: 0.3s; }
+        .btn:disabled { background: #333; box-shadow: none; opacity: 0.5; }
+        .prog { margin-top: 30px; display: none; }
+        .track { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
+        .fill { height: 100%; width: 0%; background: var(--ios-blue); transition: 0.4s; }
+        .meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--gray); margin-top: 10px; }
+        video { width: 100%; margin-top: 30px; border-radius: 20px; display: none; }
     </style>
 </head>
 <body>
-
-<div class="container">
+<div class="ambient"></div>
+<div class="glass">
     <h1>SnapTrack</h1>
-    <p class="sub">Professional Engine v18.0</p>
-
-    <div class="preview-stage" id="p-box">
-        <div id="draggable-wm">SnapTrack</div>
-    </div>
-
-    <div class="control-section">
-        <div class="label-row"><span>Watermark Size</span><span id="sz-txt">32px</span></div>
-        <input type="range" id="sz-range" min="16" max="150" value="32">
-    </div>
-
-    <div class="control-section">
-        <input type="text" id="wm-val" class="ios-input" placeholder="Text Content" value="SnapTrack">
-    </div>
-
-    <div class="file-item" onclick="document.getElementById('v').click()">
-        <strong>Video Source</strong><span class="name" id="vn">Select .mp4</span>
-        <input type="file" id="v" accept="video/mp4" hidden>
-    </div>
-    <div class="file-item" onclick="document.getElementById('a').click()">
-        <strong>Audio Master</strong><span class="name" id="an">Select .wav</span>
-        <input type="file" id="a" accept="audio/*" hidden>
-    </div>
-
-    <button id="go" class="render-btn">Render Master</button>
-
-    <div class="prog-container" id="prog">
-        <div class="track"><div class="bar" id="bar"></div></div>
-        <div class="prog-meta"><span id="st-txt">Processing...</span><span id="eta">ETA: --s</span></div>
-    </div>
-
-    <video id="out" controls playsinline></video>
+    <div class="preview" id="p"><div id="wm">SnapTrack</div></div>
+    <div style="font-size:12px; color:var(--gray); margin-bottom:8px;">Size: <span id="sv">32</span>px</div>
+    <input type="range" id="sr" min="16" max="150" value="32">
+    <input type="text" id="wt" class="text-input" placeholder="Text Content" value="SnapTrack">
+    <div class="input-item" onclick="document.getElementById('v').click()"><strong>Video</strong><span id="vn">Select .mp4</span><input type="file" id="v" accept="video/mp4" hidden></div>
+    <div class="input-item" onclick="document.getElementById('a').click()"><strong>Audio</strong><span id="an">Select .wav</span><input type="file" id="a" accept="audio/*" hidden></div>
+    <button id="go" class="btn">Render</button>
+    <div class="prog" id="pg"><div class="track"><div class="fill" id="bar"></div></div><div class="meta"><span id="st">Status</span><span id="et">--s</span></div></div>
+    <video id="out" controls></video>
 </div>
-
 <script>
-    const wm = document.getElementById('draggable-wm');
-    const pBox = document.getElementById('p-box');
-    const wmVal = document.getElementById('wm-val');
-    const szRange = document.getElementById('sz-range');
-    const szTxt = document.getElementById('sz-txt');
-    
-    // Cookie Helpers
-    const saveC = (k, v) => document.cookie = `${k}=${encodeURIComponent(v)}; max-age=31536000; path=/`;
-    const loadC = (k) => document.cookie.match(new RegExp(`(?:^|; )${k.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1')}=([^;]*)`))?.[1];
+    const wm = document.getElementById('wm'), p = document.getElementById('p'), wt = document.getElementById('wt'), sr = document.getElementById('sr'), sv = document.getElementById('sv');
+    let x = 50, y = 80, s = 32;
+    const save = (k, v) => document.cookie = `${k}=${encodeURIComponent(v)}; max-age=31536000; path=/`;
+    const get = (k) => document.cookie.match(new RegExp(`(?:^|; )${k}=([^;]*)`))?.[1];
 
-    // Global State
-    let posX = 50, posY = 80, fontSize = 32;
-
-    // Initialize from Cookies
     window.onload = () => {
-        if(loadC('posX')) { posX = parseFloat(decodeURIComponent(loadC('posX'))); wm.style.left = posX + '%'; }
-        if(loadC('posY')) { posY = parseFloat(decodeURIComponent(loadC('posY'))); wm.style.top = posY + '%'; }
-        if(loadC('fontSize')) { 
-            fontSize = parseInt(decodeURIComponent(loadC('fontSize'))); 
-            szRange.value = fontSize;
-            szTxt.innerText = fontSize + 'px';
-            wm.style.fontSize = fontSize + 'px';
-        }
-        if(loadC('wmText')) { 
-            const t = decodeURIComponent(loadC('wmText'));
-            wmVal.value = t;
-            wm.innerText = t;
-        }
+        if(get('x')) { x = parseFloat(get('x')); wm.style.left = x + '%'; }
+        if(get('y')) { y = parseFloat(get('y')); wm.style.top = y + '%'; }
+        if(get('s')) { s = parseInt(get('s')); sr.value = s; sv.innerText = s; wm.style.fontSize = s + 'px'; }
+        if(get('t')) { const t = decodeURIComponent(get('t')); wt.value = t; wm.innerText = t; }
     };
 
-    // UI Listeners
-    wmVal.oninput = () => {
-        wm.innerText = wmVal.value || 'SnapTrack';
-        saveC('wmText', wmVal.value);
-    };
+    wt.oninput = () => { wm.innerText = wt.value; save('t', wt.value); };
+    sr.oninput = () => { s = sr.value; sv.innerText = s; wm.style.fontSize = s + 'px'; save('s', s); };
 
-    szRange.oninput = () => {
-        fontSize = szRange.value;
-        wm.style.fontSize = fontSize + 'px';
-        szTxt.innerText = fontSize + 'px';
-        saveC('fontSize', fontSize);
-    };
-
-    // GUI Drag (Touch & Mouse)
-    const handleDrag = (e) => {
+    const drag = (e) => {
         e.preventDefault();
-        const rect = pBox.getBoundingClientRect();
+        const r = p.getBoundingClientRect();
         const move = (ev) => {
-            const cx = ev.touches ? ev.touches[0].clientX : ev.clientX;
-            const cy = ev.touches ? ev.touches[0].clientY : ev.clientY;
-            posX = Math.max(0, Math.min(100, ((cx - rect.left) / rect.width) * 100));
-            posY = Math.max(0, Math.min(100, ((cy - rect.top) / rect.height) * 100));
-            wm.style.left = posX + '%';
-            wm.style.top = posY + '%';
+            const cx = ev.touches ? ev.touches[0].clientX : ev.clientX, cy = ev.touches ? ev.touches[0].clientY : ev.clientY;
+            x = Math.max(0, Math.min(100, ((cx - r.left) / r.width) * 100));
+            y = Math.max(0, Math.min(100, ((cy - r.top) / r.height) * 100));
+            wm.style.left = x + '%'; wm.style.top = y + '%';
         };
-        const stop = () => {
-            saveC('posX', posX);
-            saveC('posY', posY);
-            document.removeEventListener('mousemove', move);
-            document.removeEventListener('mouseup', stop);
-            document.removeEventListener('touchmove', move);
-            document.removeEventListener('touchend', stop);
-        };
-        document.addEventListener('mousemove', move);
-        document.addEventListener('mouseup', stop);
-        document.addEventListener('touchmove', move, { passive: false });
-        document.addEventListener('touchend', stop);
+        const end = () => { save('x', x); save('y', y); document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', end); document.removeEventListener('touchmove', move); document.removeEventListener('touchend', end); };
+        document.addEventListener('mousemove', move); document.addEventListener('mouseup', end); document.addEventListener('touchmove', move, {passive:false}); document.addEventListener('touchend', end);
     };
-    wm.addEventListener('mousedown', handleDrag);
-    wm.addEventListener('touchstart', handleDrag, { passive: false });
+    wm.addEventListener('mousedown', drag); wm.addEventListener('touchstart', drag, {passive:false});
 
-    // Files
-    document.getElementById('v').onchange = e => document.getElementById('vn').innerText = e.target.files[0]?.name || 'Select .mp4';
-    document.getElementById('a').onchange = e => document.getElementById('an').innerText = e.target.files[0]?.name || 'Select .wav';
+    document.getElementById('v').onchange = e => document.getElementById('vn').innerText = e.target.files[0]?.name;
+    document.getElementById('a').onchange = e => document.getElementById('an').innerText = e.target.files[0]?.name;
 
-    // Render Execution
     document.getElementById('go').onclick = async () => {
-        const vf = document.getElementById('v').files[0];
-        const af = document.getElementById('a').files[0];
-        if(!vf || !af) return alert("Select Video and Audio source.");
-
-        const btn = document.getElementById('go');
-        const prog = document.getElementById('prog');
-        const bar = document.getElementById('bar');
-        const eta = document.getElementById('eta');
-        const stTxt = document.getElementById('st-txt');
-
-        btn.disabled = true;
-        prog.style.display = 'block';
-        document.getElementById('out').style.display = 'none';
-
-        const fd = new FormData();
-        fd.append('video', vf);
-        fd.append('audio', af);
-        fd.append('wm', wmVal.value);
-        fd.append('x', posX);
-        fd.append('y', posY);
-        fd.append('fontsize', fontSize);
-
-        try {
-            const res = await fetch('/process', { method: 'POST', body: fd });
-            const { jobId } = await res.json();
-
-            const timer = setInterval(async () => {
-                const pRes = await fetch(`/progress/${jobId}`);
-                const s = await pRes.json();
-                bar.style.width = s.progress + '%';
-                eta.innerText = `ETA: ${s.eta}s`;
-
-                if (s.progress >= 99) stTxt.innerText = "Finalizing...";
-
-                if (s.status === 'completed') {
-                    clearInterval(timer);
-                    stTxt.innerText = "Complete";
-                    const video = document.getElementById('out');
-                    video.src = s.url + '?t=' + Date.now();
-                    video.style.display = 'block';
-                    btn.disabled = false;
-                }
-            }, 800);
-        } catch (e) {
-            alert('Render failed');
-            btn.disabled = false;
-        }
+        const vf = document.getElementById('v').files[0], af = document.getElementById('a').files[0];
+        if(!vf || !af) return alert("Files missing");
+        document.getElementById('go').disabled = true; document.getElementById('pg').style.display = 'block';
+        const fd = new FormData(); fd.append('video', vf); fd.append('audio', af); fd.append('wm', wt.value); fd.append('x', x); fd.append('y', y); fd.append('fontsize', s);
+        const res = await fetch('/process', { method: 'POST', body: fd });
+        const { jobId } = await res.json();
+        const t = setInterval(async () => {
+            const pr = await fetch(`/progress/${jobId}`);
+            const st = await pr.json();
+            document.getElementById('bar').style.width = st.progress + '%';
+            document.getElementById('et').innerText = st.eta + 's';
+            if(st.status === 'completed') { clearInterval(t); const o = document.getElementById('out'); o.src = st.url + '?t=' + Date.now(); o.style.display = 'block'; document.getElementById('go').disabled = false; }
+            if(st.status === 'error') { clearInterval(t); alert("Error"); document.getElementById('go').disabled = false; }
+        }, 1000);
     };
 </script>
 </body>
