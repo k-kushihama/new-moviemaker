@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SnapTrack v34.0 | Luminance Typography</title>
+    <title>SnapTrack v35.0 | Sovereign Stable</title>
     <style>
         :root { --accent: #0A84FF; --bg: #000; --card: rgba(22, 22, 24, 0.75); --border: rgba(255, 255, 255, 0.08); }
         body { background: var(--bg); color: #fff; font-family: -apple-system, sans-serif; margin: 0; padding: 60px 20px; display: flex; flex-direction: column; align-items: center; overflow-y: auto; min-height: 100vh; background-image: radial-gradient(at 0% 0%, #1c1c1e 0%, #000 100%); }
@@ -16,11 +16,9 @@
         .tab-btn.active { background: var(--accent); color: #fff; box-shadow: 0 4px 15px rgba(10,132,255,0.3); }
 
         .preview { position: relative; aspect-ratio: 16/9; background: #000; border-radius: 28px; overflow: hidden; border: 1px solid var(--border); }
-        /* 背景ブラーに brightness(1.3) を追加して明るく */
         #bg-blur { position: absolute; width: 100%; height: 100%; filter: blur(30px) brightness(1.3); opacity: 0.6; background-size: cover; background-position: center; display: none; }
         #fg-jacket { position: absolute; top: 50%; left: 28%; transform: translate(-50%, -50%); width: 32%; aspect-ratio: 1/1; background: #1a1a1c; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.8); display: none; background-size: cover; border: 1px solid rgba(255,255,255,0.1); }
         
-        /* タイトルレイヤーに white-space: pre-wrap を追加して改行を反映 */
         .drag-item { position: absolute; transform: translate(-50%, -50%); cursor: grab; font-weight: 700; width: max-content; text-shadow: 0 2px 15px #000; z-index: 100; line-height: 1.2; white-space: pre-wrap; text-align: center; }
         #title-layer { color: #fff; font-size: 38px; display: none; }
         #wm-layer { color: rgba(255,255,255,0.6); font-size: 20px; white-space: nowrap; }
@@ -28,7 +26,6 @@
         .label { display: block; font-size: 10px; color: #555; font-weight: 800; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.12em; }
         input[type="text"], input[type="number"], textarea { width: 100%; background: rgba(255,255,255,0.06); border: 1px solid var(--border); padding: 18px; border-radius: 16px; color: #fff; outline: none; margin-bottom: 15px; box-sizing: border-box; transition: 0.3s; font-family: inherit; }
         textarea { resize: vertical; height: auto; }
-        input:focus, textarea:focus { border-color: var(--accent); background: rgba(255,255,255,0.1); }
         
         .btn { background: var(--accent); color: #fff; border: none; padding: 24px; width: 100%; border-radius: 22px; font-size: 19px; font-weight: 700; cursor: pointer; transition: 0.3s; box-shadow: 0 15px 35px rgba(10,132,255,0.3); }
         .btn:disabled { opacity: 0.3; cursor: wait; }
@@ -44,7 +41,7 @@
 <div class="grid">
     <header class="full" style="margin-bottom:10px;">
         <h1>SnapTrack</h1>
-        <p style="color:#444; letter-spacing:0.5em; font-size:10px; font-weight:900;">ELITE MASTER ENGINE V34.0</p>
+        <p style="color:#444; letter-spacing:0.5em; font-size:10px; font-weight:900;">STABLE MASTER ENGINE V35.0</p>
     </header>
     
     <div class="tabs">
@@ -60,23 +57,23 @@
     </div>
 
     <div class="bento half-l">
-        <span class="label">Watermark Settings</span>
-        <input type="text" id="wt" placeholder="Watermark Text">
+        <span class="label">Watermark Configuration</span>
+        <input type="text" id="wt" placeholder="Label Text">
         <div style="display:flex; gap:15px; align-items:center; margin-bottom:24px;">
-            <input type="color" id="wc" value="#ffffff" style="width:50px; height:52px; border:none; background:none; cursor:pointer;">
+            <input type="color" id="wc" value="#ffffff" style="width:50px; height:52px; border:none; background:none;">
             <input type="range" id="ws" min="16" max="150" value="32" style="flex:1; accent-color:var(--accent);">
         </div>
 
         <div id="title-group" style="display:none;">
-            <span class="label">Title Typography (Manual Line Breaks)</span>
-            <textarea id="tt" rows="3" placeholder="Enter Title (Press Enter for new line)"></textarea>
+            <span class="label">Visual Typography (Manual Break)</span>
+            <textarea id="tt" rows="3" placeholder="Enter Title"></textarea>
             <div style="display:flex; gap:15px; align-items:center; margin-bottom:24px;">
                 <span style="font-size:12px; color:#666; font-weight:700;">Size:</span>
                 <input type="range" id="tfs" min="20" max="120" value="40" style="flex:1; accent-color:var(--accent);">
             </div>
         </div>
 
-        <span class="label">Asset Pipeline</span>
+        <span class="label">Media Processing Pipeline</span>
         <div id="video-input" onclick="document.getElementById('v').click()" style="background:rgba(255,255,255,0.04); padding:18px; border-radius:18px; margin-bottom:12px; cursor:pointer; border:1px solid var(--border); display:flex; justify-content:space-between;">
             <strong>Select Video</strong><span id="vn" style="font-size:12px;color:#555;">No file</span><input type="file" id="v" accept="video/mp4" hidden>
         </div>
@@ -96,11 +93,11 @@
             <div><label class="label">Fade Out</label><input type="number" id="fo" placeholder="0.0"></div>
         </div>
         <div>
-            <button id="go" class="btn">GENERATE MASTER</button>
+            <button id="go" class="btn">GENERATE CINEMATIC MASTER</button>
             <div class="prog" id="pg"><div class="track"><div class="fill" id="bf"></div></div><div style="display:flex; justify-content:space-between; margin-top:12px; font-size:11px; color:#555;"><span id="st">Ready</span><span id="et">ETA: --s</span></div></div>
         </div>
     </div>
-    <div class="bento full res" id="res"><video id="out" controls playsinline></video><button id="dl" class="btn" style="margin-top:20px;">SECURE DOWNLOAD (80MB CHUNKS)</button></div>
+    <div class="bento full res" id="res"><video id="out" controls playsinline></video><button id="dl" class="btn" style="margin-top:20px;">SECURE DOWNLOAD (LIMIT BYPASS)</button></div>
 </div>
 
 <script>
@@ -177,7 +174,7 @@
     document.getElementById('go').onclick = async () => {
         const vf = document.getElementById('v').files[0], af = document.getElementById('a').files[0], imgf = document.getElementById('i').files[0];
         if(!af || (mode==='video' && !vf) || (mode==='music' && !imgf)) return alert("Required files missing.");
-        const btn = document.getElementById('go'), bar = document.getElementById('bf'), st = document.getElementById('st');
+        const btn = document.getElementById('go'), bar = document.getElementById('bf'), st = document.getElementById('st'), et = document.getElementById('et');
         btn.disabled = true; document.getElementById('pg').style.display = 'block';
         try {
             st.innerText = "UPLOADING MEDIA...";
@@ -191,15 +188,26 @@
             });
             const { jobId } = await res.json();
             const timer = setInterval(async () => {
-                const pr = await fetch(`/progress/${jobId}`); const data = await pr.json();
-                bar.style.width = data.progress + '%'; document.getElementById('et').innerText = data.eta + 'S';
-                st.innerText = `ENGINE PROCESS: ${data.progress}%`;
+                const pr = await fetch(`/progress/${jobId}`);
+                const data = await pr.json();
+                
+                // undefined対策: 数値であることを保証
+                const progress = data.progress !== undefined ? data.progress : 0;
+                const eta = data.eta !== undefined ? data.eta : 0;
+                
+                bar.style.width = progress + '%';
+                et.innerText = eta + 'S';
+                st.innerText = `PROCESS: ${progress}% (${data.status.toUpperCase()})`;
+                
                 if (data.status === 'completed') {
                     clearInterval(timer); currentFilename = data.url.split('/').pop();
                     document.getElementById('out').src = data.url + '?t=' + Date.now();
                     document.getElementById('res').style.display = 'block'; btn.disabled = false;
                     document.getElementById('res').scrollIntoView({ behavior: 'smooth' });
-                    st.innerText = "RENDER COMPLETE";
+                    st.innerText = "COMPLETE";
+                }
+                if (data.status === 'error') {
+                    clearInterval(timer); alert("Process Failed."); btn.disabled = false;
                 }
             }, 1000);
         } catch(e) { alert("Error."); btn.disabled = false; }

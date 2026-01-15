@@ -1,6 +1,6 @@
 /**
- * SnapTrack Sovereign Engine v34.0 (Luminance & Typography Edition)
- * Optimized for Proxmox LXC | Brighter Backgrounds & Multi-line Titles
+ * SnapTrack Sovereign Engine v35.0 (Absolute Stability Edition)
+ * Optimized for Proxmox LXC | Zero-Cost 80MB Bypass
  * SnapLynk Co., Ltd. Professional Standard
  */
 
@@ -77,7 +77,6 @@ app.get('/download-seg/:filename/:start/:end', (req, res) => {
 
 // レンダリングコア
 app.post('/process', (req, res) => {
-    // tfs (Title Font Size) を受け取るように追加
     const { mode, videoName, audioName, imageName, wm, x, y, fontsize, color, start, end, fadeIn, fadeOut, title, tx, ty, tfs } = req.body;
     const vPath = mode === 'video' ? path.join(UPLOADS, videoName) : null;
     const iPath = mode === 'music' ? path.join(UPLOADS, imageName) : null;
@@ -86,7 +85,8 @@ app.post('/process', (req, res) => {
     const outName = `master_${id}.mp4`;
     const outPath = path.join(PUBLIC, outName);
 
-    jobs[id] = { progress: 0, eta: 0, status: 'initializing' };
+    // 常に progress, eta が存在するように初期化
+    jobs[id] = { progress: 0, eta: 0, status: 'initializing', url: '' };
 
     let clipDuration = 30;
     try {
@@ -96,12 +96,11 @@ app.post('/process', (req, res) => {
 
     const sTime = parseFloat(start) || 0;
     const eTime = (parseFloat(end) > 0) ? parseFloat(end) : clipDuration;
-    const finalDuration = eTime - sTime;
+    const finalDuration = Math.max(eTime - sTime, 1);
     const fIn = parseFloat(fadeIn) || 0;
     const fOut = parseFloat(fadeOut) || 0;
     const font = '/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc';
 
-    // 背景処理：ブラーに加え、eqフィルタで明るさを30%アップ (brightness=0.3)
     let filterComplex = "";
     if (mode === 'music') {
         filterComplex = `[0:v]scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720,boxblur=40:5,eq=brightness=0.3[bg];` +
@@ -111,10 +110,8 @@ app.post('/process', (req, res) => {
         filterComplex = `[0:v]scale=-2:720:flags=fast_bilinear[v_base];`;
     }
 
-    // テキスト重畳 (タイトルに tfs を適用し、複数行に対応)
     let textFilters = `[v_base]drawtext=fontfile='${font}':text='${wm}':x=(w*${x/100}-tw/2):y=(h*${y/100}-th/2):fontsize=${fontsize}:fontcolor=${color}:shadowcolor=black@0.5:shadowx=2:shadowy=2`;
     if (title) {
-        // drawtextは改行コードをそのまま扱えるため、受け取ったtitle文字列をそのまま渡す
         textFilters += `,drawtext=fontfile='${font}':text='${title}':x=(w*${tx/100}-tw/2):y=(h*${ty/100}-th/2):fontsize=${tfs}:fontcolor=white:shadowcolor=black@0.5:shadowx=2:shadowy=2:text_align=center`;
     }
     
@@ -136,24 +133,39 @@ app.post('/process', (req, res) => {
 
     const ffmpeg = spawn('/usr/bin/ffmpeg', args);
     const startTs = Date.now();
+    
+    // オブジェクトの一部のみを更新
     jobs[id].status = 'rendering';
 
     ffmpeg.stderr.on('data', d => {
         const m = d.toString().match(/time=(\d{2}:\d{2}:\d{2}.\d{2})/);
         if (m) {
-            const prog = Math.min(toSec(m[1]) / finalDuration, 0.99);
+            const cur = toSec(m[1]);
+            const prog = Math.min(cur / finalDuration, 0.99);
             const elap = (Date.now() - startTs) / 1000;
-            jobs[id] = { progress: Math.round(prog * 100), eta: prog > 0.05 ? Math.round((elap / prog) - elap) : 0, status: 'rendering' };
+            
+            jobs[id].progress = Math.round(prog * 100);
+            jobs[id].eta = prog > 0.05 ? Math.round((elap / prog) - elap) : 0;
+            jobs[id].status = 'rendering';
         }
     });
 
     ffmpeg.on('close', code => {
-        jobs[id] = code === 0 ? { progress: 100, eta: 0, status: 'completed', url: `/stream/${outName}` } : { status: 'error' };
+        if (code === 0) {
+            jobs[id].progress = 100;
+            jobs[id].status = 'completed';
+            jobs[id].url = `/stream/${outName}`;
+        } else {
+            jobs[id].status = 'error';
+        }
         [vPath, iPath, aPath].forEach(p => p && fs.existsSync(p) && fs.unlinkSync(p));
     });
 
     res.json({ jobId: id });
 });
 
-app.get('/progress/:id', (req, res) => res.json(jobs[req.params.id] || { status: 'not_found' }));
-app.listen(port, '0.0.0.0', () => console.log(`SnapTrack Sovereign v34.0 Online`));
+app.get('/progress/:id', (req, res) => res.json(jobs[req.params.id] || { status: 'not_found', progress: 0, eta: 0 }));
+
+app.listen(port, '0.0.0.0', () => {
+    console.log(`\x1b[36m%s\x1b[0m`, `SnapTrack Sovereign v35.0 Stable Edition Online`);
+});
