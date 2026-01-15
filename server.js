@@ -1,6 +1,6 @@
 /**
- * SnapTrack Sovereign Engine v27.0 (Chunked Upload Edition)
- * Optimized for Proxmox LXC | Bypass Cloudflare 100MB Limit
+ * SnapTrack Sovereign Engine v28.0 (Bento Luxe Edition)
+ * Optimized for Proxmox LXC | 8-Core Parallelism
  * SnapTrack Co., Ltd. Professional Standard
  */
 
@@ -43,32 +43,31 @@ const toSec = (t) => {
     return (+a[0]) * 3600 + (+a[1]) * 60 + (+a[2]);
 };
 
-// チャンクを受け取ってファイルに追記するエンドポイント
+// チャンクアップロード
 app.post('/upload-chunk', upload.single('chunk'), (req, res) => {
     const { filename, chunkIndex } = req.body;
     const chunkPath = req.file.path;
     const targetPath = path.join(UPLOADS, filename);
 
-    // 最初のチャンクなら新規作成、それ以外なら追記
     if (parseInt(chunkIndex) === 0 && fs.existsSync(targetPath)) {
         fs.unlinkSync(targetPath);
     }
 
     const data = fs.readFileSync(chunkPath);
     fs.appendFileSync(targetPath, data);
-    fs.unlinkSync(chunkPath); // 一時チャンクを削除
+    fs.unlinkSync(chunkPath);
 
     res.json({ success: true });
 });
 
-// レンダリング開始エンドポイント
+// レンダリングプロセス
 app.post('/process', (req, res) => {
     const { videoName, audioName, wm, x, y, fontsize, color, start, end } = req.body;
     const vPath = path.join(UPLOADS, videoName);
     const aPath = path.join(UPLOADS, audioName);
 
     if (!fs.existsSync(vPath) || !fs.existsSync(aPath)) {
-        return res.status(400).json({ error: 'Files not fully uploaded' });
+        return res.status(400).json({ error: 'Data incomplete' });
     }
 
     const id = Date.now().toString();
@@ -131,4 +130,4 @@ app.post('/process', (req, res) => {
 
 app.get('/progress/:id', (req, res) => res.json(jobs[req.params.id] || { status: 'not_found' }));
 
-app.listen(port, '0.0.0.0', () => console.log(`SnapTrack Sovereign v27.0 Online | Chunk Support Active`));
+app.listen(port, '0.0.0.0', () => console.log(`SnapTrack Sovereign v28.0 (Bento) Online`));

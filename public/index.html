@@ -3,51 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SnapTrack v27.0 | Enterprise Engine</title>
+    <title>SnapTrack v28.0 | Sovereign Edition</title>
     <style>
-        :root { --accent: #0A84FF; --bg: #000; --card: rgba(22, 22, 24, 0.8); --border: rgba(255, 255, 255, 0.1); }
-        body { background: var(--bg); color: #fff; font-family: -apple-system, sans-serif; margin: 0; padding: 60px 20px; display: flex; flex-direction: column; align-items: center; overflow-y: auto; min-height: 100vh; background-image: radial-gradient(circle at 50% 0%, #1a1a1a 0%, #000 100%); }
-        .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 20px; max-width: 1000px; width: 100%; }
-        .bento { background: var(--card); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); border-radius: 32px; border: 1px solid var(--border); padding: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        :root { --accent: #0A84FF; --bg: #000; --card: rgba(22, 22, 24, 0.7); --border: rgba(255, 255, 255, 0.08); }
+        body { background: var(--bg); color: #fff; font-family: -apple-system, sans-serif; margin: 0; padding: 60px 20px; display: flex; flex-direction: column; align-items: center; overflow-y: auto; min-height: 100vh; background-image: radial-gradient(at 0% 0%, #1a1a1a 0%, #000 100%); }
+        .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; max-width: 1040px; width: 100%; }
+        .bento { background: var(--card); backdrop-filter: blur(40px) saturate(180%); -webkit-backdrop-filter: blur(40px) saturate(180%); border-radius: 32px; border: 1px solid var(--border); padding: 32px; box-shadow: 0 30px 60px rgba(0,0,0,0.5); }
         .full { grid-column: span 12; }
         .half-l { grid-column: span 7; }
         .half-r { grid-column: span 5; }
-        .preview { position: relative; aspect-ratio: 16/9; background: #000; border-radius: 20px; overflow: hidden; border: 1px solid var(--border); }
-        #wm { position: absolute; transform: translate(-50%, -50%); cursor: grab; font-weight: 700; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.9); white-space: nowrap; width: max-content; }
-        .input-box { margin-bottom: 20px; }
-        label { display: block; font-size: 11px; color: #555; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; }
-        input[type="text"], input[type="number"] { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 14px; padding: 15px; color: #fff; outline: none; }
-        .file-row { background: rgba(255,255,255,0.03); padding: 16px; border-radius: 16px; display: flex; justify-content: space-between; margin-bottom: 10px; cursor: pointer; border: 1px solid var(--border); }
-        .btn { background: var(--accent); color: #fff; border: none; padding: 22px; width: 100%; border-radius: 20px; font-size: 18px; font-weight: 700; cursor: pointer; transition: 0.3s; }
-        .btn:disabled { opacity: 0.4; filter: grayscale(1); }
-        .prog-ui { margin-top: 20px; display: none; }
+        h1 { font-size: 48px; font-weight: 800; margin: 0; letter-spacing: -2px; }
+        .preview { position: relative; aspect-ratio: 16/9; background: #050505; border-radius: 24px; overflow: hidden; border: 1px solid var(--border); }
+        #wm { position: absolute; transform: translate(-50%, -50%); cursor: grab; font-weight: 700; color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,1); white-space: nowrap; width: max-content; }
+        .input-box { margin-bottom: 24px; }
+        label { display: block; font-size: 11px; color: #666; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.1em; }
+        input[type="text"], input[type="number"] { width: 100%; background: rgba(255,255,255,0.06); border: 1px solid var(--border); border-radius: 16px; padding: 18px; color: #fff; outline: none; box-sizing: border-box; font-size: 16px; }
+        .file-row { background: rgba(255,255,255,0.04); padding: 18px; border-radius: 18px; display: flex; justify-content: space-between; margin-bottom: 12px; cursor: pointer; border: 1px solid var(--border); transition: 0.3s; }
+        .file-row:hover { background: rgba(255,255,255,0.08); border-color: var(--accent); }
+        .btn { background: var(--accent); color: #fff; border: none; padding: 24px; width: 100%; border-radius: 20px; font-size: 18px; font-weight: 700; cursor: pointer; box-shadow: 0 15px 35px rgba(10, 132, 255, 0.3); transition: 0.3s; }
+        .btn:disabled { opacity: 0.3; filter: grayscale(1); }
+        .prog-ui { margin-top: 24px; display: none; }
         .track { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
         .bar { height: 100%; width: 0%; background: var(--accent); transition: width 0.3s; }
-        .info { display: flex; justify-content: space-between; font-size: 11px; color: #888; margin-top: 10px; }
-        video { width: 100%; border-radius: 24px; margin-top: 20px; display: none; border: 1px solid var(--border); }
+        .info { display: flex; justify-content: space-between; font-size: 11px; color: #888; margin-top: 12px; font-weight: 600; }
+        .result-area { display: none; margin-top: 32px; animation: fadeInUp 0.8s ease; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        video { width: 100%; border-radius: 28px; border: 1px solid var(--border); box-shadow: 0 40px 80px rgba(0,0,0,0.6); }
+        .download-link { display: inline-block; margin-top: 20px; color: var(--accent); text-decoration: none; font-weight: 700; font-size: 14px; border: 1px solid var(--accent); padding: 12px 24px; border-radius: 12px; transition: 0.3s; }
+        .download-link:hover { background: var(--accent); color: #fff; }
     </style>
 </head>
 <body>
 
 <div class="grid">
-    <header class="full">
-        <h1 style="font-size:42px; margin:0; letter-spacing:-2px;">SnapTrack</h1>
-        <p style="color:#555; letter-spacing:0.2em; font-size:11px; margin:10px 0 30px;">GLOBAL ENTERPRISE V27</p>
+    <header class="full" style="margin-bottom:20px;">
+        <h1>SnapTrack</h1>
+        <p style="color:#555; letter-spacing:0.3em; font-size:11px; margin-top:8px;">SOVEREIGN ENGINE V28.0</p>
     </header>
 
     <div class="bento full preview" id="stage"><div id="wm">SnapTrack</div></div>
 
     <div class="bento half-l">
-        <div class="input-box"><label>Watermark Text</label><input type="text" id="wt" value="SnapTrack"></div>
-        <div class="input-box"><label>Color & Size</label><div style="display:flex; gap:15px;"><input type="color" id="wc" value="#ffffff" style="width:60px; height:48px; border:none; background:none;"><input type="range" id="ws" min="16" max="150" value="32" style="flex:1;"></div></div>
-        <div class="file-row" onclick="document.getElementById('v').click()"><strong>Video</strong><span id="vn">Select File</span><input type="file" id="v" accept="video/mp4" hidden></div>
-        <div class="file-row" onclick="document.getElementById('a').click()"><strong>Audio</strong><span id="an">Select File</span><input type="file" id="a" accept="audio/*" hidden></div>
+        <div class="input-box"><label>Watermark Label</label><input type="text" id="wt" value="SnapTrack"></div>
+        <div class="input-box"><label>Color & Size</label><div style="display:flex; gap:15px;"><input type="color" id="wc" value="#ffffff" style="width:60px; height:50px; border:none; background:none;"><input type="range" id="ws" min="16" max="150" value="32" style="flex:1;"></div></div>
+        <div class="file-row" onclick="document.getElementById('v').click()"><strong>Video</strong><span id="vn" style="font-size:12px;color:#666;">Select File</span><input type="file" id="v" accept="video/mp4" hidden></div>
+        <div class="file-row" onclick="document.getElementById('a').click()"><strong>Audio</strong><span id="an" style="font-size:12px;color:#666;">Select File</span><input type="file" id="a" accept="audio/*" hidden></div>
     </div>
 
     <div class="bento half-r" style="display:flex; flex-direction:column; justify-content:space-between;">
         <div>
-            <div class="input-box"><label>Trim Start (s)</label><input type="number" id="ts" placeholder="0.0"></div>
-            <div class="input-box"><label>Trim End (s)</label><input type="number" id="te" placeholder="Full"></div>
+            <div class="input-box"><label>Trim Start (sec)</label><input type="number" id="ts" placeholder="0.0"></div>
+            <div class="input-box"><label>Trim End (sec)</label><input type="number" id="te" placeholder="Full Length"></div>
         </div>
         <div>
             <button id="go" class="btn">EXECUTE MASTER RENDER</button>
@@ -56,6 +62,12 @@
                 <div class="info"><span id="stat">Standby</span><span id="eta">ETA: --s</span></div>
             </div>
         </div>
+    </div>
+
+    <div class="bento full result-area" id="res">
+        <h3 style="margin-top:0;">Master Rendered Video</h3>
+        <video id="out" controls playsinline></video>
+        <a id="dl" class="download-link" download="SnapTrack_Export.mp4">DOWNLOAD MASTER FILE</a>
     </div>
 </div>
 
@@ -92,25 +104,18 @@
     };
     wm.addEventListener('mousedown', handleDrag); wm.addEventListener('touchstart', handleDrag, {passive:false});
 
-    const uploadInChunks = async (file, onProgress) => {
-        const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB chunks (Cloudflare friendly)
-        const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
-        const filename = `${Date.now()}_${file.name}`;
-
-        for (let i = 0; i < totalChunks; i++) {
-            const start = i * CHUNK_SIZE;
-            const end = Math.min(file.size, start + CHUNK_SIZE);
-            const chunk = file.slice(start, end);
-
+    const uploadChunks = async (file, onProgress) => {
+        const CHUNK = 5 * 1024 * 1024;
+        const total = Math.ceil(file.size / CHUNK);
+        const fname = `${Date.now()}_${file.name}`;
+        for (let i = 0; i < total; i++) {
+            const chunk = file.slice(i * CHUNK, Math.min(file.size, (i + 1) * CHUNK));
             const fd = new FormData();
-            fd.append('chunk', chunk);
-            fd.append('filename', filename);
-            fd.append('chunkIndex', i);
-
+            fd.append('chunk', chunk); fd.append('filename', fname); fd.append('chunkIndex', i);
             await fetch('/upload-chunk', { method: 'POST', body: fd });
-            onProgress(Math.round(((i + 1) / totalChunks) * 100));
+            onProgress(Math.round(((i + 1) / total) * 100));
         }
-        return filename;
+        return fname;
     };
 
     document.getElementById('v').onchange = e => document.getElementById('vn').innerText = e.target.files[0]?.name;
@@ -119,15 +124,13 @@
     document.getElementById('go').onclick = async () => {
         const vf = document.getElementById('v').files[0], af = document.getElementById('a').files[0];
         if(!vf || !af) return alert("Select files.");
-        
         const btn = document.getElementById('go'), pui = document.getElementById('pg'), bar = document.getElementById('bf'), stat = document.getElementById('stat'), eta = document.getElementById('eta');
         btn.disabled = true; pui.style.display = 'block';
 
         try {
-            stat.innerText = "UPLOADING VIDEO...";
-            const vName = await uploadInChunks(vf, p => bar.style.width = p + '%');
-            stat.innerText = "UPLOADING AUDIO...";
-            const aName = await uploadInChunks(af, p => bar.style.width = p + '%');
+            stat.innerText = "UPLOADING...";
+            const vName = await uploadChunks(vf, p => bar.style.width = p + '%');
+            const aName = await uploadChunks(af, p => bar.style.width = p + '%');
 
             stat.innerText = "INITIATING RENDER...";
             const res = await fetch('/process', {
@@ -150,12 +153,24 @@
 
                 if (data.status === 'completed') {
                     clearInterval(timer);
-                    stat.innerText = "COMPLETE";
+                    stat.innerText = "MASTER RENDER COMPLETE";
                     btn.disabled = false;
-                    window.location.reload(); // 再リロードして動画を表示（またはvideo.src更新）
+                    
+                    // リロードせずにUIを表示
+                    const resArea = document.getElementById('res');
+                    const video = document.getElementById('out');
+                    const dl = document.getElementById('dl');
+                    
+                    const finalUrl = data.url + '?t=' + Date.now();
+                    video.src = finalUrl;
+                    dl.href = finalUrl;
+                    resArea.style.display = 'block';
+                    
+                    // スムーズにスクロール
+                    resArea.scrollIntoView({ behavior: 'smooth' });
                 }
             }, 1000);
-        } catch(e) { alert("Error during transfer."); btn.disabled = false; }
+        } catch(e) { alert("Network Error."); btn.disabled = false; }
     };
 </script>
 </body>
