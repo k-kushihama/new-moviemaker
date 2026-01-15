@@ -2,63 +2,85 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SnapTrack v21.0</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SnapTrack v27.0 | Enterprise Engine</title>
     <style>
-        :root { --ios-blue: #007AFF; --ios-bg: #000; --ios-card: rgba(25, 25, 27, 0.8); --text: #fff; --gray: #8E8E93; }
-        body { background: var(--ios-bg); color: var(--text); font-family: -apple-system, sans-serif; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
-        .ambient { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 20% 30%, #1a1a1c 0%, #000 100%); z-index: -1; }
-        .glass { background: var(--ios-card); backdrop-filter: blur(50px) saturate(200%); -webkit-backdrop-filter: blur(50px) saturate(200%); border-radius: 40px; padding: 40px; width: 100%; max-width: 460px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 40px 100px rgba(0,0,0,0.7); }
-        h1 { font-size: 32px; font-weight: 800; margin: 0 0 24px 0; letter-spacing: -1px; text-align: center; }
-        .preview { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 20px; overflow: hidden; margin-bottom: 24px; border: 1px solid rgba(255,255,255,0.05); }
-        #wm { position: absolute; transform: translate(-50%, -50%); cursor: grab; color: #fff; white-space: nowrap; user-select: none; font-weight: 600; text-shadow: 0 2px 8px rgba(0,0,0,0.8); }
-        .input-item { background: rgba(255,255,255,0.06); padding: 16px; border-radius: 18px; margin-bottom: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
-        .input-item:active { transform: scale(0.98); background: rgba(255,255,255,0.1); }
-        .input-item span { font-size: 14px; color: var(--gray); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .text-input { width: 100%; background: rgba(255,255,255,0.06); border: none; padding: 18px; border-radius: 18px; color: #fff; font-size: 16px; margin-bottom: 20px; outline: none; }
-        input[type="range"] { width: 100%; accent-color: var(--ios-blue); margin-bottom: 24px; }
-        .btn { background: var(--ios-blue); color: #fff; border: none; padding: 20px; width: 100%; border-radius: 20px; font-size: 18px; font-weight: 700; cursor: pointer; box-shadow: 0 10px 30px rgba(0, 122, 255, 0.3); transition: 0.3s; }
-        .btn:disabled { background: #333; box-shadow: none; opacity: 0.5; }
-        .prog { margin-top: 30px; display: none; }
-        .track { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
-        .fill { height: 100%; width: 0%; background: var(--ios-blue); transition: 0.4s; }
-        .meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--gray); margin-top: 10px; }
-        video { width: 100%; margin-top: 30px; border-radius: 20px; display: none; }
+        :root { --accent: #0A84FF; --bg: #000; --card: rgba(22, 22, 24, 0.8); --border: rgba(255, 255, 255, 0.1); }
+        body { background: var(--bg); color: #fff; font-family: -apple-system, sans-serif; margin: 0; padding: 60px 20px; display: flex; flex-direction: column; align-items: center; overflow-y: auto; min-height: 100vh; background-image: radial-gradient(circle at 50% 0%, #1a1a1a 0%, #000 100%); }
+        .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 20px; max-width: 1000px; width: 100%; }
+        .bento { background: var(--card); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); border-radius: 32px; border: 1px solid var(--border); padding: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .full { grid-column: span 12; }
+        .half-l { grid-column: span 7; }
+        .half-r { grid-column: span 5; }
+        .preview { position: relative; aspect-ratio: 16/9; background: #000; border-radius: 20px; overflow: hidden; border: 1px solid var(--border); }
+        #wm { position: absolute; transform: translate(-50%, -50%); cursor: grab; font-weight: 700; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.9); white-space: nowrap; width: max-content; }
+        .input-box { margin-bottom: 20px; }
+        label { display: block; font-size: 11px; color: #555; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; }
+        input[type="text"], input[type="number"] { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 14px; padding: 15px; color: #fff; outline: none; }
+        .file-row { background: rgba(255,255,255,0.03); padding: 16px; border-radius: 16px; display: flex; justify-content: space-between; margin-bottom: 10px; cursor: pointer; border: 1px solid var(--border); }
+        .btn { background: var(--accent); color: #fff; border: none; padding: 22px; width: 100%; border-radius: 20px; font-size: 18px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        .btn:disabled { opacity: 0.4; filter: grayscale(1); }
+        .prog-ui { margin-top: 20px; display: none; }
+        .track { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
+        .bar { height: 100%; width: 0%; background: var(--accent); transition: width 0.3s; }
+        .info { display: flex; justify-content: space-between; font-size: 11px; color: #888; margin-top: 10px; }
+        video { width: 100%; border-radius: 24px; margin-top: 20px; display: none; border: 1px solid var(--border); }
     </style>
 </head>
 <body>
-<div class="ambient"></div>
-<div class="glass">
-    <h1>SnapTrack</h1>
-    <div class="preview" id="p"><div id="wm">SnapTrack</div></div>
-    <div style="font-size:12px; color:var(--gray); margin-bottom:8px;">Size: <span id="sv">32</span>px</div>
-    <input type="range" id="sr" min="16" max="150" value="32">
-    <input type="text" id="wt" class="text-input" placeholder="Text Content" value="SnapTrack">
-    <div class="input-item" onclick="document.getElementById('v').click()"><strong>Video</strong><span id="vn">Select .mp4</span><input type="file" id="v" accept="video/mp4" hidden></div>
-    <div class="input-item" onclick="document.getElementById('a').click()"><strong>Audio</strong><span id="an">Select .wav</span><input type="file" id="a" accept="audio/*" hidden></div>
-    <button id="go" class="btn">Render</button>
-    <div class="prog" id="pg"><div class="track"><div class="fill" id="bar"></div></div><div class="meta"><span id="st">Status</span><span id="et">--s</span></div></div>
-    <video id="out" controls></video>
+
+<div class="grid">
+    <header class="full">
+        <h1 style="font-size:42px; margin:0; letter-spacing:-2px;">SnapTrack</h1>
+        <p style="color:#555; letter-spacing:0.2em; font-size:11px; margin:10px 0 30px;">GLOBAL ENTERPRISE V27</p>
+    </header>
+
+    <div class="bento full preview" id="stage"><div id="wm">SnapTrack</div></div>
+
+    <div class="bento half-l">
+        <div class="input-box"><label>Watermark Text</label><input type="text" id="wt" value="SnapTrack"></div>
+        <div class="input-box"><label>Color & Size</label><div style="display:flex; gap:15px;"><input type="color" id="wc" value="#ffffff" style="width:60px; height:48px; border:none; background:none;"><input type="range" id="ws" min="16" max="150" value="32" style="flex:1;"></div></div>
+        <div class="file-row" onclick="document.getElementById('v').click()"><strong>Video</strong><span id="vn">Select File</span><input type="file" id="v" accept="video/mp4" hidden></div>
+        <div class="file-row" onclick="document.getElementById('a').click()"><strong>Audio</strong><span id="an">Select File</span><input type="file" id="a" accept="audio/*" hidden></div>
+    </div>
+
+    <div class="bento half-r" style="display:flex; flex-direction:column; justify-content:space-between;">
+        <div>
+            <div class="input-box"><label>Trim Start (s)</label><input type="number" id="ts" placeholder="0.0"></div>
+            <div class="input-box"><label>Trim End (s)</label><input type="number" id="te" placeholder="Full"></div>
+        </div>
+        <div>
+            <button id="go" class="btn">EXECUTE MASTER RENDER</button>
+            <div class="prog-ui" id="pg">
+                <div class="track"><div class="bar" id="bf"></div></div>
+                <div class="info"><span id="stat">Standby</span><span id="eta">ETA: --s</span></div>
+            </div>
+        </div>
+    </div>
 </div>
+
 <script>
-    const wm = document.getElementById('wm'), p = document.getElementById('p'), wt = document.getElementById('wt'), sr = document.getElementById('sr'), sv = document.getElementById('sv');
+    const wm = document.getElementById('wm'), stage = document.getElementById('stage'), wt = document.getElementById('wt'), ws = document.getElementById('ws'), wc = document.getElementById('wc'), ts = document.getElementById('ts'), te = document.getElementById('te');
     let x = 50, y = 80, s = 32;
+
     const save = (k, v) => document.cookie = `${k}=${encodeURIComponent(v)}; max-age=31536000; path=/`;
     const get = (k) => document.cookie.match(new RegExp(`(?:^|; )${k}=([^;]*)`))?.[1];
 
     window.onload = () => {
         if(get('x')) { x = parseFloat(get('x')); wm.style.left = x + '%'; }
         if(get('y')) { y = parseFloat(get('y')); wm.style.top = y + '%'; }
-        if(get('s')) { s = parseInt(get('s')); sr.value = s; sv.innerText = s; wm.style.fontSize = s + 'px'; }
-        if(get('t')) { const t = decodeURIComponent(get('t')); wt.value = t; wm.innerText = t; }
+        if(get('s')) { s = parseInt(get('s')); ws.value = s; wm.style.fontSize = s + 'px'; }
+        if(get('c')) { wm.style.color = decodeURIComponent(get('c')); wc.value = decodeURIComponent(get('c')); }
+        if(get('t')) { const val = decodeURIComponent(get('t')); wt.value = val; wm.innerText = val; }
     };
 
     wt.oninput = () => { wm.innerText = wt.value; save('t', wt.value); };
-    sr.oninput = () => { s = sr.value; sv.innerText = s; wm.style.fontSize = s + 'px'; save('s', s); };
+    ws.oninput = () => { s = ws.value; wm.style.fontSize = s + 'px'; save('s', s); };
+    wc.oninput = () => { wm.style.color = wc.value; save('c', wc.value); };
 
-    const drag = (e) => {
+    const handleDrag = (e) => {
         e.preventDefault();
-        const r = p.getBoundingClientRect();
+        const r = stage.getBoundingClientRect();
         const move = (ev) => {
             const cx = ev.touches ? ev.touches[0].clientX : ev.clientX, cy = ev.touches ? ev.touches[0].clientY : ev.clientY;
             x = Math.max(0, Math.min(100, ((cx - r.left) / r.width) * 100));
@@ -68,26 +90,72 @@
         const end = () => { save('x', x); save('y', y); document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', end); document.removeEventListener('touchmove', move); document.removeEventListener('touchend', end); };
         document.addEventListener('mousemove', move); document.addEventListener('mouseup', end); document.addEventListener('touchmove', move, {passive:false}); document.addEventListener('touchend', end);
     };
-    wm.addEventListener('mousedown', drag); wm.addEventListener('touchstart', drag, {passive:false});
+    wm.addEventListener('mousedown', handleDrag); wm.addEventListener('touchstart', handleDrag, {passive:false});
+
+    const uploadInChunks = async (file, onProgress) => {
+        const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB chunks (Cloudflare friendly)
+        const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+        const filename = `${Date.now()}_${file.name}`;
+
+        for (let i = 0; i < totalChunks; i++) {
+            const start = i * CHUNK_SIZE;
+            const end = Math.min(file.size, start + CHUNK_SIZE);
+            const chunk = file.slice(start, end);
+
+            const fd = new FormData();
+            fd.append('chunk', chunk);
+            fd.append('filename', filename);
+            fd.append('chunkIndex', i);
+
+            await fetch('/upload-chunk', { method: 'POST', body: fd });
+            onProgress(Math.round(((i + 1) / totalChunks) * 100));
+        }
+        return filename;
+    };
 
     document.getElementById('v').onchange = e => document.getElementById('vn').innerText = e.target.files[0]?.name;
     document.getElementById('a').onchange = e => document.getElementById('an').innerText = e.target.files[0]?.name;
 
     document.getElementById('go').onclick = async () => {
         const vf = document.getElementById('v').files[0], af = document.getElementById('a').files[0];
-        if(!vf || !af) return alert("Files missing");
-        document.getElementById('go').disabled = true; document.getElementById('pg').style.display = 'block';
-        const fd = new FormData(); fd.append('video', vf); fd.append('audio', af); fd.append('wm', wt.value); fd.append('x', x); fd.append('y', y); fd.append('fontsize', s);
-        const res = await fetch('/process', { method: 'POST', body: fd });
-        const { jobId } = await res.json();
-        const t = setInterval(async () => {
-            const pr = await fetch(`/progress/${jobId}`);
-            const st = await pr.json();
-            document.getElementById('bar').style.width = st.progress + '%';
-            document.getElementById('et').innerText = st.eta + 's';
-            if(st.status === 'completed') { clearInterval(t); const o = document.getElementById('out'); o.src = st.url + '?t=' + Date.now(); o.style.display = 'block'; document.getElementById('go').disabled = false; }
-            if(st.status === 'error') { clearInterval(t); alert("Error"); document.getElementById('go').disabled = false; }
-        }, 1000);
+        if(!vf || !af) return alert("Select files.");
+        
+        const btn = document.getElementById('go'), pui = document.getElementById('pg'), bar = document.getElementById('bf'), stat = document.getElementById('stat'), eta = document.getElementById('eta');
+        btn.disabled = true; pui.style.display = 'block';
+
+        try {
+            stat.innerText = "UPLOADING VIDEO...";
+            const vName = await uploadInChunks(vf, p => bar.style.width = p + '%');
+            stat.innerText = "UPLOADING AUDIO...";
+            const aName = await uploadInChunks(af, p => bar.style.width = p + '%');
+
+            stat.innerText = "INITIATING RENDER...";
+            const res = await fetch('/process', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    videoName: vName, audioName: aName, wm: wt.value,
+                    x, y, fontsize: s, color: wc.value,
+                    start: ts.value || 0, end: te.value || 0
+                })
+            });
+            const { jobId } = await res.json();
+
+            const timer = setInterval(async () => {
+                const pr = await fetch(`/progress/${jobId}`);
+                const data = await pr.json();
+                bar.style.width = data.progress + '%';
+                eta.innerText = `ETA: ${data.eta}S`;
+                stat.innerText = `RENDERING: ${data.progress}%`;
+
+                if (data.status === 'completed') {
+                    clearInterval(timer);
+                    stat.innerText = "COMPLETE";
+                    btn.disabled = false;
+                    window.location.reload(); // 再リロードして動画を表示（またはvideo.src更新）
+                }
+            }, 1000);
+        } catch(e) { alert("Error during transfer."); btn.disabled = false; }
     };
 </script>
 </body>
