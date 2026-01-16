@@ -1,6 +1,6 @@
 /**
- * SnapTrack Sovereign Engine v43.0 (Smart Preview Edition)
- * Optimized for Proxmox LXC | 16:9 Forced | Smart Mode Logic
+ * SnapTrack Sovereign Engine v44.0 (Turbo-X Edition)
+ * Optimized for Proxmox LXC | Static-Image Speed Boost | 8-Core
  * SnapLynk Co., Ltd. Professional Standard
  */
 
@@ -99,9 +99,15 @@ app.post('/process', (req, res) => {
     const finalDur = Math.max(eTime - sTime, 1);
     const font = '/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc';
 
+    /**
+     * 爆速フィルタ設計 (Turbo-X Logic)
+     * 1. 160x90に縮小
+     * 2. 小さいサイズのままブラーと明るさ調整 (計算量 1/64)
+     * 3. その後 1280x720に拡大
+     */
     let vF = "";
     if (mode === 'music') {
-        vF = `[0:v]scale=160:90,boxblur=5:1,scale=1280:720,eq=brightness=0.2[bg];` +
+        vF = `[0:v]scale=160:90,boxblur=5:1,eq=brightness=0.2,scale=1280:720[bg];` +
              `[0:v]scale=560:560:force_original_aspect_ratio=decrease[fg];` +
              `[bg][fg]overlay=(W*${jx}/100-w/2):(H*${jy}/100-h/2),setdar=16/9[v_base];`;
     } else {
@@ -110,7 +116,6 @@ app.post('/process', (req, res) => {
 
     vF += `[v_base]drawtext=fontfile='${font}':textfile='${wmFile}':x=(w*${x/100}-tw/2):y=(h*${y/100}-th/2):fontsize=${fontsize}:fontcolor=${color}:shadowcolor=black@0.5:shadowx=2:shadowy=2`;
     
-    // Videoモードではタイトルを描画しない
     if (title && mode === 'music') {
         vF += `,drawtext=fontfile='${font}':textfile='${titleFile}':x=(w*${tx/100}-tw/2):y=(h*${ty/100}-th/2):fontsize=${tfs}:fontcolor=white:shadowcolor=black@0.5:shadowx=2:shadowy=2:line_spacing=10`;
     }
@@ -125,9 +130,18 @@ app.post('/process', (req, res) => {
     aF += `[a_out]`;
 
     let args = ['-nostdin', '-y', '-threads', '8', '-progress', 'pipe:1'];
-    if (mode === 'music') args.push('-loop', '1', '-t', finalDur.toString(), '-i', iPath);
-    else { if (sTime > 0) args.push('-ss', sTime.toString()); args.push('-i', vPath); }
-    args.push('-i', aPath, '-t', finalDur.toString(), '-filter_complex', `${vF};${aF}`, '-map', '[v_out]', '-map', '[a_out]', '-c:v', 'libx264', '-preset', 'ultrafast', '-tune', 'zerolatency', '-crf', '26', '-movflags', '+faststart', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '128k', '-shortest', outPath);
+    
+    if (mode === 'music') {
+        // 画像は 10fps で十分 (エンコード負荷を 1/3 に削減)
+        args.push('-framerate', '10', '-loop', '1', '-t', finalDur.toString(), '-i', iPath);
+    } else {
+        if (sTime > 0) args.push('-ss', sTime.toString());
+        args.push('-i', vPath);
+    }
+    
+    args.push('-i', aPath, '-t', finalDur.toString(), '-filter_complex', `${vF};${aF}`, '-map', '[v_out]', '-map', '[a_out]', 
+              '-c:v', 'libx264', '-preset', 'ultrafast', '-tune', 'stillimage', // 静止画最適化
+              '-crf', '26', '-movflags', '+faststart', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '128k', '-shortest', outPath);
 
     const ffmpeg = spawn('/usr/bin/ffmpeg', args);
     const startTs = Date.now();
@@ -152,4 +166,4 @@ app.post('/process', (req, res) => {
 });
 
 app.get('/progress/:id', (req, res) => res.json(jobs[req.params.id] || { status: 'not_found', progress: 0 }));
-app.listen(port, '0.0.0.0', () => console.log(`SnapTrack Sovereign v43.0 Smart Preview Online`));
+app.listen(port, '0.0.0.0', () => console.log(`SnapTrack Sovereign v44.0 Turbo-X Online`));
