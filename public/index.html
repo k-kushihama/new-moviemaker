@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SnapTrack v40.0 | Turbo Master</title>
+    <title>SnapTrack v43.0 | Smart Preview</title>
     <style>
         :root { --accent: #0A84FF; --bg: #000; --card: rgba(22, 22, 24, 0.7); --border: rgba(255, 255, 255, 0.08); }
         body { background: var(--bg); color: #fff; font-family: -apple-system, sans-serif; margin: 0; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; overflow-y: auto; min-height: 100vh; background-image: radial-gradient(at 0% 0%, #1c1c1e 0%, #000 100%); }
@@ -13,12 +13,16 @@
         .tabs { display: flex; background: rgba(255,255,255,0.05); padding: 5px; border-radius: 18px; margin-bottom: 30px; width: fit-content; margin-left: auto; margin-right: auto; }
         .tab-btn { padding: 12px 32px; border-radius: 14px; border: none; background: none; color: #666; cursor: pointer; font-weight: 700; transition: 0.3s; }
         .tab-btn.active { background: var(--accent); color: #fff; box-shadow: 0 4px 15px rgba(10,132,255,0.3); }
-        .preview { position: relative; aspect-ratio: 16/9; background: #000; border-radius: 28px; overflow: hidden; border: 1px solid var(--border); }
+        
+        .preview { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 28px; overflow: hidden; border: 1px solid var(--border); }
         #bg-blur { position: absolute; width: 100%; height: 100%; filter: blur(30px) brightness(1.2); opacity: 0.6; background-size: cover; background-position: center; display: none; }
-        #fg-jacket { position: absolute; top: 50%; left: 28%; transform: translate(-50%, -50%); width: 32%; aspect-ratio: 1/1; background: #1a1a1c; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.8); display: none; background-size: cover; border: 1px solid rgba(255,255,255,0.1); }
+        #fg-jacket { position: absolute; transform: translate(-50%, -50%); width: 34%; aspect-ratio: 1/1; background: #1a1a1c; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.8); display: none; background-size: cover; border: 1px solid rgba(255,255,255,0.1); cursor: grab; z-index: 50; }
+        #pv-video { position: absolute; width: 100%; height: 100%; object-fit: contain; display: none; z-index: 10; }
+        
         .drag-item { position: absolute; transform: translate(-50%, -50%); cursor: grab; font-weight: 700; width: max-content; text-shadow: 0 2px 15px #000; z-index: 100; line-height: 1.2; white-space: pre-wrap; text-align: center; }
         #title-layer { color: #fff; font-size: 38px; display: none; }
         #wm-layer { color: rgba(255,255,255,0.6); font-size: 20px; white-space: nowrap; }
+        
         .label { display: block; font-size: 10px; color: #555; font-weight: 800; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.12em; }
         input, textarea { width: 100%; background: rgba(255,255,255,0.06); border: 1px solid var(--border); padding: 18px; border-radius: 16px; color: #fff; outline: none; margin-bottom: 15px; box-sizing: border-box; font-family: inherit; }
         .btn { background: var(--accent); color: #fff; border: none; padding: 24px; width: 100%; border-radius: 22px; font-size: 19px; font-weight: 700; cursor: pointer; transition: 0.3s; box-shadow: 0 15px 35px rgba(10,132,255,0.3); }
@@ -27,35 +31,50 @@
         .track { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
         .fill { height: 100%; width: 0%; background: var(--accent); transition: width 0.4s; }
         .res { display: none; margin-top: 40px; text-align: center; }
-        video { width: 100%; border-radius: 32px; border: 1px solid var(--border); }
+        video { width: 100%; border-radius: 32px; border: 1px solid var(--border); box-shadow: 0 40px 80px rgba(0,0,0,0.6); }
     </style>
 </head>
 <body>
 
 <div class="grid">
-    <header class="full"><h1>SnapTrack</h1><p style="color:#444; letter-spacing:0.5em; font-size:10px; font-weight:900;">TURBO MASTER ENGINE V40.0</p></header>
+    <header class="full"><h1>SnapTrack</h1><p style="color:#444; letter-spacing:0.5em; font-size:10px; font-weight:900;">SMART MASTER ENGINE V43.0</p></header>
     <div class="tabs"><button class="tab-btn active" id="tab-v" onclick="switchTab('video')">Video Mastering</button><button class="tab-btn" id="tab-m" onclick="switchTab('music')">Music Mode</button></div>
-    <div class="bento full preview" id="stage"><div id="bg-blur"></div><div id="fg-jacket"></div><div id="title-layer" class="drag-item">Master Title</div><div id="wm-layer" class="drag-item">SnapTrack</div></div>
+    
+    <div class="bento full preview" id="stage">
+        <video id="pv-video" muted loop playsinline></video>
+        <div id="bg-blur"></div>
+        <div id="fg-jacket"></div>
+        <div id="title-layer" class="drag-item">Master Title</div>
+        <div id="wm-layer" class="drag-item">SnapTrack</div>
+    </div>
+    
     <div class="bento half-l">
-        <span class="label">Brand Layer</span>
-        <input type="text" id="wt" placeholder="Watermark Label">
+        <div id="jacket-coords" style="display:none;">
+            <span class="label">Jacket Position (X / Y %)</span>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:10px;">
+                <input type="number" id="jx" value="34" step="0.1"><input type="number" id="jy" value="50" step="0.1">
+            </div>
+        </div>
+        <div id="title-group" style="display:none;"><span class="label">Music Title Typography</span><textarea id="tt" rows="2" placeholder="Enter Title"></textarea><input type="range" id="tfs" min="20" max="120" value="40" style="accent-color:var(--accent);"></div>
+        <span class="label">Global Watermark Style</span>
+        <input type="text" id="wt" placeholder="Label Content">
         <div style="display:flex; gap:15px; align-items:center;"><input type="color" id="wc" value="#ffffff" style="width:50px; height:52px; border:none; background:none;"><input type="range" id="ws" min="16" max="150" value="32" style="flex:1; accent-color:var(--accent);"></div>
-        <div id="title-group" style="display:none;"><span class="label">Visual Typography</span><textarea id="tt" rows="2" placeholder="Enter Title"></textarea><input type="range" id="tfs" min="20" max="120" value="40" style="accent-color:var(--accent);"></div>
         <span class="label">Asset Input Pipeline</span>
         <div id="video-input" onclick="document.getElementById('v').click()" style="background:rgba(255,255,255,0.04); padding:18px; border-radius:18px; margin-bottom:12px; cursor:pointer; border:1px solid var(--border); display:flex; justify-content:space-between;"><strong>Select Video</strong><span id="vn">No file</span><input type="file" id="v" accept="video/mp4" hidden></div>
         <div id="image-input" onclick="document.getElementById('i').click()" style="background:rgba(255,255,255,0.04); padding:18px; border-radius:18px; margin-bottom:12px; cursor:pointer; border:1px solid var(--border); display:none; justify-content:space-between;"><strong>Select Jacket</strong><span id="in">No file</span><input type="file" id="i" accept="image/*" hidden></div>
         <div onclick="document.getElementById('a').click()" style="background:rgba(255,255,255,0.04); padding:18px; border-radius:18px; cursor:pointer; border:1px solid var(--border); display:flex; justify-content:space-between;"><strong>Select Audio</strong><span id="an">No file</span><input type="file" id="a" accept="audio/*" hidden></div>
     </div>
+    
     <div class="bento half-r" style="display:flex; flex-direction:column; justify-content:space-between;">
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;"><input type="number" id="ts" placeholder="Start (s)"><input type="number" id="te" placeholder="End (s)"><input type="number" id="fi" placeholder="FadeIn (s)"><input type="number" id="fo" placeholder="FadeOut (s)"></div>
-        <div><button id="go" class="btn">GENERATE TURBO MASTER</button><div class="prog" id="pg"><div class="track"><div class="fill" id="bf"></div></div><div style="display:flex; justify-content:space-between; margin-top:12px; font-size:11px; color:#555;"><span id="st">Ready</span><span id="et">ETA: --s</span></div></div></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;"><input type="number" id="ts" placeholder="Start Offset"><input type="number" id="te" placeholder="End Offset"><input type="number" id="fi" placeholder="Fade In"><input type="number" id="fo" placeholder="Fade Out"></div>
+        <div><button id="go" class="btn">GENERATE MASTER (16:9)</button><div class="prog" id="pg"><div class="track"><div class="fill" id="bf"></div></div><div style="display:flex; justify-content:space-between; margin-top:12px; font-size:11px; color:#555;"><span id="st">Ready</span><span id="et">ETA: --s</span></div></div></div>
     </div>
     <div class="bento full res" id="res"><video id="out" controls playsinline></video><button id="dl-trigger" class="btn" style="margin-top:20px;">SECURE DOWNLOAD (80MB CHUNKS)</button></div>
 </div>
 
 <script>
-    let mode = 'video', x = 50, y = 80, tx = 65, ty = 50, s = 32, tfs = 40, currentFilename = "";
-    const wm = document.getElementById('wm-layer'), title = document.getElementById('title-layer'), stage = document.getElementById('stage');
+    let mode = 'video', x = 50, y = 80, tx = 65, ty = 50, s = 32, tfs = 40, jx = 34, jy = 50, currentFilename = "";
+    const wm = document.getElementById('wm-layer'), title = document.getElementById('title-layer'), jacket = document.getElementById('fg-jacket'), stage = document.getElementById('stage'), pvVideo = document.getElementById('pv-video');
     
     const save = (k, v) => document.cookie = `${k}=${encodeURIComponent(v)}; max-age=31536000; path=/`;
     const get = (k) => document.cookie.match(new RegExp(`(?:^|; )${k}=([^;]*)`))?.[1];
@@ -66,55 +85,74 @@
         document.getElementById('tab-m').classList.toggle('active', m==='music');
         document.getElementById('video-input').style.display = m === 'video' ? 'flex' : 'none';
         document.getElementById('image-input').style.display = m === 'music' ? 'flex' : 'none';
+        document.getElementById('jacket-coords').style.display = m === 'music' ? 'block' : 'none';
         document.getElementById('title-group').style.display = m === 'music' ? 'block' : 'none';
         document.getElementById('bg-blur').style.display = m === 'music' ? 'block' : 'none';
-        document.getElementById('fg-jacket').style.display = m === 'music' ? 'block' : 'none';
+        
+        // Music Mode の時だけジャケットとタイトルを表示
+        jacket.style.display = (m === 'music' && jacket.style.backgroundImage) ? 'block' : 'none';
         title.style.display = (m === 'music' && document.getElementById('tt').value) ? 'block' : 'none';
+        
+        // Video Mode の時だけビデオプレビューを表示
+        pvVideo.style.display = (m === 'video' && pvVideo.src) ? 'block' : 'none';
+        if(m === 'video') pvVideo.play(); else pvVideo.pause();
+
         save('mode', mode);
     }
 
     window.onload = () => {
         if(get('mode')) switchTab(get('mode'));
+        if(get('jx')) { jx = parseFloat(get('jx')); document.getElementById('jx').value = jx; jacket.style.left = jx + '%'; }
+        if(get('jy')) { jy = parseFloat(get('jy')); document.getElementById('jy').value = jy; jacket.style.top = jy + '%'; }
         if(get('x')) { x = parseFloat(get('x')); wm.style.left = x + '%'; }
         if(get('y')) { y = parseFloat(get('y')); wm.style.top = y + '%'; }
         if(get('tx')) { tx = parseFloat(get('tx')); title.style.left = tx + '%'; }
         if(get('ty')) { ty = parseFloat(get('ty')); title.style.top = ty + '%'; }
         if(get('s')) { s = parseInt(get('s')); document.getElementById('ws').value = s; wm.style.fontSize = s + 'px'; }
         if(get('tfs')) { tfs = parseInt(get('tfs')); document.getElementById('tfs').value = tfs; title.style.fontSize = tfs + 'px'; }
-        if(get('t')) { document.getElementById('wt').value = decodeURIComponent(get('t')); wm.innerText = document.getElementById('wt').value; }
+        if(get('t')) { document.getElementById('wt').value = decodeURIComponent(get('t')); wm.innerText = document.getElementById('wt').value || " "; }
         if(get('tt')) { document.getElementById('tt').value = decodeURIComponent(get('tt')); title.innerText = document.getElementById('tt').value; if(mode==='music') title.style.display='block'; }
     };
 
     document.getElementById('wt').oninput = e => { wm.innerText = e.target.value || " "; save('t', e.target.value); };
-    document.getElementById('tt').oninput = e => { title.innerText = e.target.value; title.style.display = e.target.value ? 'block' : 'none'; save('tt', e.target.value); };
+    document.getElementById('tt').oninput = e => { title.innerText = e.target.value || " "; title.style.display = (mode==='music' && e.target.value) ? 'block' : 'none'; save('tt', e.target.value); };
     document.getElementById('ws').oninput = e => { s = e.target.value; wm.style.fontSize = s + 'px'; save('s', s); };
     document.getElementById('tfs').oninput = e => { tfs = e.target.value; title.style.fontSize = tfs + 'px'; save('tfs', tfs); };
     document.getElementById('wc').oninput = e => { wm.style.color = e.target.value; save('c', e.target.value); };
+    document.getElementById('jx').oninput = e => { jx = e.target.value; jacket.style.left = jx + '%'; save('jx', jx); };
+    document.getElementById('jy').oninput = e => { jy = e.target.value; jacket.style.top = jy + '%'; save('jy', jy); };
 
-    function makeDraggable(el, isTitle) {
+    function makeDraggable(el, type) {
         el.onmousedown = (e) => {
             e.preventDefault(); const r = stage.getBoundingClientRect();
             const move = (ev) => {
                 let curX = Math.max(0, Math.min(100, ((ev.clientX - r.left) / r.width) * 100));
                 let curY = Math.max(0, Math.min(100, ((ev.clientY - r.top) / r.height) * 100));
                 el.style.left = curX + '%'; el.style.top = curY + '%';
-                if(isTitle) { tx = curX; ty = curY; save('tx', tx); save('ty', ty); } else { x = curX; y = curY; save('x', x); save('y', y); }
+                if(type === 'title') { tx = curX; ty = curY; save('tx', tx); save('ty', ty); } 
+                else if(type === 'wm') { x = curX; y = curY; save('x', x); save('y', y); }
+                else if(type === 'jacket') { jx = curX; jy = curY; document.getElementById('jx').value = jx.toFixed(1); document.getElementById('jy').value = jy.toFixed(1); save('jx', jx); save('jy', jy); }
             };
             const stop = () => { document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', stop); };
             document.addEventListener('mousemove', move); document.addEventListener('mouseup', stop);
         };
     }
-    makeDraggable(wm, false); makeDraggable(title, true);
+    makeDraggable(wm, 'wm'); makeDraggable(title, 'title'); makeDraggable(jacket, 'jacket');
 
     document.getElementById('i').onchange = e => {
         const file = e.target.files[0]; document.getElementById('in').innerText = file.name;
         const url = URL.createObjectURL(file);
         document.getElementById('bg-blur').style.backgroundImage = `url(${url})`;
-        document.getElementById('bg-blur').style.display = 'block';
-        document.getElementById('fg-jacket').style.backgroundImage = `url(${url})`;
-        document.getElementById('fg-jacket').style.display = 'block';
+        document.getElementById('bg-blur').style.display = (mode==='music') ? 'block' : 'none';
+        jacket.style.backgroundImage = `url(${url})`;
+        jacket.style.display = (mode==='music') ? 'block' : 'none';
     };
-    document.getElementById('v').onchange = e => document.getElementById('vn').innerText = e.target.files[0].name;
+    document.getElementById('v').onchange = e => {
+        const file = e.target.files[0]; document.getElementById('vn').innerText = file.name;
+        const url = URL.createObjectURL(file);
+        pvVideo.src = url;
+        if(mode==='video') { pvVideo.style.display = 'block'; pvVideo.play(); }
+    };
     document.getElementById('a').onchange = e => document.getElementById('an').innerText = e.target.files[0].name;
 
     const uploadChunks = async (file, onProgress) => {
@@ -125,21 +163,6 @@
             await fetch('/upload-chunk', { method: 'POST', body: fd }); onProgress(Math.round(((i + 1) / total) * 100));
         }
         return fname;
-    };
-
-    const secureDownload = async () => {
-        const bar = document.getElementById('bf'), stat = document.getElementById('st');
-        stat.innerText = "BYPASSING CLOUD LIMIT...";
-        const info = await (await fetch(`/file-info/${currentFilename}`)).json();
-        const CHUNK = 80 * 1024 * 1024; const total = Math.ceil(info.size / CHUNK);
-        let chunks = [];
-        for (let i = 0; i < total; i++) {
-            const res = await fetch(`/download-seg/${currentFilename}/${i * CHUNK}/${Math.min(info.size, (i + 1) * CHUNK) - 1}`);
-            chunks.push(await res.blob());
-            bar.style.width = Math.round(((i + 1) / total) * 100) + '%';
-        }
-        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(chunks)); a.download = currentFilename; a.click();
-        stat.innerText = "TRANSFER COMPLETE";
     };
 
     document.getElementById('go').onclick = async () => {
@@ -154,7 +177,7 @@
             let aN = await uploadChunks(af, p => bar.style.width = p + '%');
             const res = await fetch('/process', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ mode, videoName: vN, audioName: aN, imageName: iN, wm: document.getElementById('wt').value || " ", x, y, fontsize: s, color: document.getElementById('wc').value, start: document.getElementById('ts').value || 0, end: document.getElementById('te').value || 0, fadeIn: document.getElementById('fi').value || 0, fadeOut: document.getElementById('fo').value || 0, title: document.getElementById('tt').value, tx, ty, tfs })
+                body: JSON.stringify({ mode, videoName: vN, audioName: aN, imageName: iN, wm: document.getElementById('wt').value || " ", x, y, fontsize: s, color: document.getElementById('wc').value, start: document.getElementById('ts').value || 0, end: document.getElementById('te').value || 0, fadeIn: document.getElementById('fi').value || 0, fadeOut: document.getElementById('fo').value || 0, title: document.getElementById('tt').value, tx, ty, tfs, jx, jy })
             });
             const { jobId } = await res.json();
             const timer = setInterval(async () => {
@@ -175,7 +198,14 @@
             }, 1000);
         } catch(e) { alert("Network Error."); btn.disabled = false; }
     };
-    document.getElementById('dl-trigger').onclick = secureDownload;
+    document.getElementById('dl-trigger').onclick = async () => {
+        const info = await (await fetch(`/file-info/${currentFilename}`)).json();
+        const CHUNK = 80 * 1024 * 1024; let chunks = [];
+        for (let i = 0; i < Math.ceil(info.size / CHUNK); i++) {
+            chunks.push(await (await fetch(`/download-seg/${currentFilename}/${i * CHUNK}/${Math.min(info.size, (i + 1) * CHUNK) - 1}`)).blob());
+        }
+        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(chunks)); a.download = currentFilename; a.click();
+    };
 </script>
 </body>
 </html>
